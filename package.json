@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier src/ --write"
+    "format": "prettier src/ --write",
+    "migration:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit generate && cross-env DB_MIGRATING=true drizzle-kit migrate",
+    "db:seed": "cross-env DB_SEEDING=true npx tsx src/db/seeder.ts",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.11.1",
