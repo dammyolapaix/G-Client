@@ -9,3 +9,5 @@ export const INVOICE_STATUSES = [
   'uncollectible',
   'void',
 ] as const
+
+export const APPLICATION_STATUSES = ['pending', 'accepted', 'declined'] as const

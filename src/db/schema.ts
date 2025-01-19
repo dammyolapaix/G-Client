@@ -1,5 +1,9 @@
 export { authProviderEnum, roleEnum } from '@/db/enums'
 export {
+  default as coursesToLearners,
+  coursesToLearnersRelations,
+} from '@/features/courses/coursesToLearners/schema'
+export {
   default as coursesToStacks,
   coursesToStacksRelations,
 } from '@/features/courses/coursesToStacks/schema'
