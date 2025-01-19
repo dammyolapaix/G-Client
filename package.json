@@ -16,6 +16,8 @@
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.11.1",
     "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "dotenv-expand": "^12.0.1",
@@ -23,11 +25,14 @@
     "drizzle-zod": "^0.6.1",
     "jiti": "^2.4.2",
     "jose": "^5.9.6",
+    "lucide-react": "^0.473.0",
     "next": "15.1.5",
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "server-only": "^0.0.1",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.1"
   },
   "devDependencies": {
