@@ -5,6 +5,7 @@ export {
 } from '@/features/courses/coursesToStacks/schema'
 export { default as courses } from '@/features/courses/schema'
 export { default as stacks } from '@/features/courses/stacks/schema'
+export { default as invoices } from '@/features/invoices/schema'
 export {
   default as profiles,
   profilesRelations,
