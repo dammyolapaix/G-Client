@@ -15,6 +15,7 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'production']),
     DATABASE_URL: z.string().url(),
+    AUTH_SECRET: z.string().min(10),
     DB_MIGRATING: stringBoolean,
     DB_SEEDING: stringBoolean,
   },
