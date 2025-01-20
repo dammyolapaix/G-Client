@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { User } from '@/features/users/types'
+
 import auth from '.'
 import utils from '../utils'
 
@@ -13,7 +15,7 @@ type FormState<State> = {
 type ValidatedActionWithUserFunction<State> = (
   state: State,
   formData: FormData,
-  user: { id: string }
+  user: User
 ) => Promise<FormState<State>>
 
 export default class AuthMiddlewares {
@@ -39,7 +41,7 @@ export default class AuthMiddlewares {
         }
       }
 
-      return action(result.data, formData, { id: authUser.user.id })
+      return action(result.data, formData, authUser)
     }
   }
 }

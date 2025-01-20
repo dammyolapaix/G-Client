@@ -6,6 +6,7 @@ import { compare, hash } from 'bcryptjs'
 import { SignJWT, jwtVerify } from 'jose'
 
 import { env } from '@/env/server'
+import user from '@/features/users'
 import { SessionUser } from '@/types'
 
 export default class AuthUtils {
@@ -84,8 +85,10 @@ export default class AuthUtils {
     const session = await this.getSession()
     if (!session) return null
 
-    // Add query to get user
+    const authUser = await user.services.retrieve({ id: session.user.id })
 
-    return session
+    if (!authUser) return null
+
+    return authUser
   }
 }
