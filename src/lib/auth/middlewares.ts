@@ -10,6 +10,7 @@ type FormState<State> = {
     [Key in keyof State]?: string[]
   }
   error?: string
+  form?: State
 }
 
 type ValidatedActionWithUserFunction<State> = (
@@ -18,7 +19,36 @@ type ValidatedActionWithUserFunction<State> = (
   user: User
 ) => Promise<FormState<State>>
 
+type ValidatedActionFunction<State> = (
+  state: State,
+  formData: FormData
+) => Promise<FormState<State>>
+
 export default class AuthMiddlewares {
+  validatedAction = <Schema extends z.ZodType<State>, State>(
+    schema: Schema,
+    action: ValidatedActionFunction<State>
+  ) => {
+    return async (
+      prevState: FormState<State>,
+      formData: FormData
+    ): Promise<FormState<State>> => {
+      const form = Object.fromEntries(utils.getFormData(formData)) as State
+
+      const result = schema.safeParse(form)
+
+      if (!result.success) {
+        return {
+          form,
+          errors: result.error.flatten()
+            .fieldErrors as FormState<State>['errors'],
+        }
+      }
+
+      return action(result.data, formData)
+    }
+  }
+
   validatedActionWithUser = <Schema extends z.ZodType<State>, State>(
     schema: Schema,
     action: ValidatedActionWithUserFunction<State>
@@ -30,12 +60,13 @@ export default class AuthMiddlewares {
       const authUser = await auth.utils.getAuthUser()
       if (!authUser) throw new Error('User is not authenticated')
 
-      const result = schema.safeParse(
-        Object.fromEntries(utils.removeEmptyStringFromFormData(formData))
-      )
+      const form = Object.fromEntries(utils.getFormData(formData)) as State
+
+      const result = schema.safeParse(form)
 
       if (!result.success) {
         return {
+          form,
           errors: result.error.flatten()
             .fieldErrors as FormState<State>['errors'],
         }
