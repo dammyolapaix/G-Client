@@ -14,17 +14,15 @@ class Utils {
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Collapse multiple hyphens into one
 
-  removeEmptyStringFromFormData = (formData: FormData) => {
+  getFormData = (formData: FormData) => {
     const filteredFormData = new FormData()
 
     // Convert the FormData entries to an array for compatibility
     const entries = Array.from(formData.entries())
 
     for (const [key, value] of entries) {
-      // Include NextJs Form action payload
-      if (key.includes('$ACTION')) filteredFormData.append(key, value)
-
       // Check if the value is a non-empty string
+      // Remove NextJs Form action payload
       if (
         !key.includes('$ACTION') &&
         typeof value === 'string' &&
