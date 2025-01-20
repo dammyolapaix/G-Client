@@ -1,0 +1,51 @@
+'use server'
+
+import { redirect } from 'next/navigation'
+
+import { z } from 'zod'
+
+import auth from '@/lib/auth'
+import { DASHBOARD_ROUTE } from '@/lib/routes'
+
+import user from '..'
+
+export const loginAction = auth.middlewares.validatedAction(
+  user.auth.validations.login,
+  async (
+    state: z.infer<typeof user.auth.validations.login>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    formData: FormData
+  ) => {
+    const { email, password } = state
+
+    const foundUser = await user.services.retrieve({
+      email,
+      password: true, // Include user password
+    })
+
+    if (!foundUser)
+      return {
+        form: state,
+        error: 'Invalid credentials. Please try again.',
+      }
+
+    const isPasswordValid = await auth.utils.comparePasswords(
+      password,
+      foundUser.password!
+    )
+
+    if (!isPasswordValid)
+      return {
+        form: state,
+        error: 'Invalid credentials. Please try again.',
+      }
+
+    // Set session
+    if (foundUser)
+      await auth.utils.setSession({
+        id: foundUser.id,
+      })
+
+    redirect(DASHBOARD_ROUTE)
+  }
+)
