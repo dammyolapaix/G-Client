@@ -20,6 +20,18 @@ export default class CourseServices {
         query?.title ? ilike(courses.title, `%${query.title}%`) : undefined,
         query?.slug ? eq(courses.slug, query.slug) : undefined
       ),
+      with: {
+        instructor: {
+          columns: { id: true },
+          with: {
+            profile: {
+              columns: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
     })
 
   /**

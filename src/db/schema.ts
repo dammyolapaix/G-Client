@@ -12,7 +12,7 @@ export {
   default as coursesToStacks,
   coursesToStacksRelations,
 } from '@/features/courses/coursesToStacks/schema'
-export { default as courses } from '@/features/courses/schema'
+export { default as courses, coursesRelations } from '@/features/courses/schema'
 export { default as stacks } from '@/features/courses/stacks/schema'
 export { default as invoices } from '@/features/invoices/schema'
 export {
