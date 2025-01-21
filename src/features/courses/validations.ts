@@ -2,7 +2,7 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 import { courses } from '@/db/schema'
-import { slugify } from '@/lib/utils'
+import utils from '@/lib/utils'
 
 export default class CourseValidations {
   create = createInsertSchema(courses, {
@@ -32,14 +32,16 @@ export default class CourseValidations {
       .url()
       .startsWith('https://', {
         message: 'Please provide secure URL for the image',
-      }),
+      })
+      .optional(),
     instructorId: z
       .string({
         required_error: 'The instructor is required',
       })
-      .uuid({ message: 'The instructor is required' }),
+      .uuid({ message: 'The instructor is required' })
+      .optional(),
   }).superRefine((val, { addIssue }) => {
-    val.slug = slugify(val.title)
+    val.slug = utils.slugify(val.title)
 
     if (!val.slug) {
       addIssue({
