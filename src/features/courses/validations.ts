@@ -32,14 +32,12 @@ export default class CourseValidations {
       .url()
       .startsWith('https://', {
         message: 'Please provide secure URL for the image',
-      })
-      .optional(),
+      }),
     instructorId: z
       .string({
         required_error: 'The instructor is required',
       })
-      .uuid({ message: 'The instructor is required' })
-      .optional(),
+      .uuid({ message: 'The instructor is required' }),
   }).superRefine((val, { addIssue }) => {
     val.slug = utils.slugify(val.title)
 
