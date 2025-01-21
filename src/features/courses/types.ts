@@ -9,3 +9,5 @@ type SingleCourseQuery =
   | { slug: Course['slug']; id?: never }
 
 export type RetrieveCourse = SingleCourseQuery
+
+export type ListCourse = Partial<Omit<Course, 'id'>>
