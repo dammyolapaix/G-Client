@@ -86,7 +86,7 @@ export default function CourseForm({ course, instructors }: Props) {
                 placeholder="Price"
                 defaultValue={
                   state?.form?.price
-                    ? state.form.price * 100
+                    ? state.form.price / 100
                     : course?.price
                       ? course.price / 100
                       : undefined

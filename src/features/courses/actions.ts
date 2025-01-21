@@ -22,7 +22,11 @@ export const createCourseAction = auth.middlewares.validatedActionWithUser(
 
     const courseExist = await course.services.retrieve({ slug: slug! })
 
-    if (courseExist) return { error: 'Course already exist' }
+    if (courseExist)
+      return {
+        form: state,
+        error: 'Course already exist',
+      }
 
     await course.services.create({ ...state, slug: slug! })
 
