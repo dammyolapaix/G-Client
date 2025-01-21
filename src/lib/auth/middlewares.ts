@@ -3,6 +3,10 @@ import { z } from 'zod'
 import { User } from '@/features/users/types'
 
 import auth from '.'
+import {
+  UNAUTHENTICATED_ERROR_MESSAGE,
+  UNAUTHORIZE_ERROR_MESSAGE,
+} from '../constants'
 import utils from '../utils'
 
 type FormState<State> = {
@@ -51,6 +55,7 @@ export default class AuthMiddlewares {
 
   validatedActionWithUser = <Schema extends z.ZodType<State>, State>(
     schema: Schema,
+    roles: User['role'][],
     action: ValidatedActionWithUserFunction<State>
   ) => {
     return async (
@@ -58,7 +63,10 @@ export default class AuthMiddlewares {
       formData: FormData
     ): Promise<FormState<State>> => {
       const authUser = await auth.utils.getAuthUser()
-      if (!authUser) throw new Error('User is not authenticated')
+      if (!authUser) throw new Error(UNAUTHENTICATED_ERROR_MESSAGE)
+
+      const isAuthorized = roles.includes(authUser.role)
+      if (!isAuthorized) throw new Error(UNAUTHORIZE_ERROR_MESSAGE)
 
       const form = Object.fromEntries(utils.getFormData(formData)) as State
 
