@@ -1,12 +1,12 @@
 import 'server-only'
 
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 import db from '@/db'
 import { users } from '@/db/schema'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 
-import { InsertUser, RetrieveUser } from './types'
+import { InsertUser, ListUser, RetrieveUser } from './types'
 
 export default class UserServices {
   /**
@@ -22,6 +22,16 @@ export default class UserServices {
 
     return user
   }
+
+  /**
+   * Get users
+   */
+  list = async (query?: ListUser) =>
+    await db.query.users.findMany({
+      where: and(query?.role ? eq(users.role, query.role) : undefined),
+      columns: { password: false },
+      with: query?.with,
+    })
 
   /**
    * Get single user by query
