@@ -32,6 +32,20 @@ class Utils {
     }
     return filteredFormData
   }
+
+  formatToMoney = (amount: number): string => {
+    // Convert the amount to a decimal string and format it to two decimal places
+    const formattedAmount = (amount / 100).toFixed(2)
+
+    // Split the integer and decimal parts
+    const [integerPart, decimalPart] = formattedAmount.split('.')
+
+    // Format the integer part with thousands separators
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+
+    // Combine them back with a comma as the decimal separator
+    return `${formattedInteger}.${decimalPart}`
+  }
 }
 
 const utils = new Utils()
