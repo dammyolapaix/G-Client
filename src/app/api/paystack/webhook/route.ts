@@ -1,10 +1,11 @@
 import crypto from 'crypto'
 
 import { env } from '@/env/server'
+import { ChargeSuccessEvent } from '@/lib/payments/types'
 
 export async function POST(request: Request) {
   try {
-    const reqBody = await request.json()
+    const reqBody = (await request.json()) as ChargeSuccessEvent
 
     const hash = crypto
       .createHmac('sha512', env.PAYSTACK_SECRET_KEY)
@@ -12,9 +13,14 @@ export async function POST(request: Request) {
       .digest('hex')
 
     if (hash == request.headers.get('x-paystack-signature')) {
-      // Retrieve the request's body
-      const event = reqBody
-      // Do something with event
+      switch (reqBody.event) {
+        case 'charge.success':
+          // do something
+          break
+
+        default:
+          console.log(`Unhandled event type ${reqBody.event}`)
+      }
     }
   } catch (error) {
     return new Response(`Webhook error: ${(error as Error).message}`, {
