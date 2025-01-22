@@ -25,6 +25,7 @@ export const env = createEnv({
       .string({ required_error: 'Password is required' })
       .min(8, { message: 'Password must be at least 8 characters' }),
     CLOUDINARY_API_SECRET: z.string(),
+    PAYSTACK_SECRET_KEY: z.string(),
     DB_MIGRATING: stringBoolean,
     DB_SEEDING: stringBoolean,
   },
