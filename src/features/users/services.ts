@@ -3,7 +3,7 @@ import 'server-only'
 import { and, eq } from 'drizzle-orm'
 
 import db from '@/db'
-import { users } from '@/db/schema'
+import { profiles, users } from '@/db/schema'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 
 import { InsertUser, ListUser, RetrieveUser } from './types'
@@ -12,15 +12,28 @@ export default class UserServices {
   /**
    * Register User
    */
-  register = async (userInfo: InsertUser) => {
-    const [user] = await db
-      .insert(users)
-      .values(userInfo)
-      .returning({ id: users.id })
+  register = async (userProfileInfo: InsertUser & { name: string }) => {
+    const { name, ...userInfo } = userProfileInfo
 
-    if (!user) throw new Error(INTERNAL_ERROR_MESSAGE)
+    let userId: undefined | string = undefined
 
-    return user
+    await db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(users)
+        .values(userInfo)
+        .returning({ id: users.id })
+
+      userId = user.id
+
+      const [profile] = await tx
+        .insert(profiles)
+        .values({ name, userId: user.id })
+        .returning({ id: profiles.id })
+
+      if (!user || !profile) throw new Error(INTERNAL_ERROR_MESSAGE)
+    })
+
+    return { id: userId! }
   }
 
   /**

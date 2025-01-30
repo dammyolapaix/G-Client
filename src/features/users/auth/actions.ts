@@ -49,3 +49,34 @@ export const loginAction = auth.middlewares.validatedAction(
     redirect(DASHBOARD_ROUTE)
   }
 )
+
+export const registerAction = auth.middlewares.validatedAction(
+  user.auth.validations.register,
+  async (
+    state: z.infer<typeof user.auth.validations.register>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    formData: FormData
+  ) => {
+    const { email, password } = state
+
+    const foundUser = await user.services.retrieve({ email })
+
+    if (foundUser)
+      return {
+        form: state,
+        error: 'You already have an account, please login',
+      }
+
+    const passwordHash = await auth.utils.hashPassword(password)
+
+    const createdUser = await user.services.register({
+      ...state,
+      password: passwordHash,
+    })
+
+    // Set session
+    await auth.utils.setSession({ id: createdUser.id })
+
+    redirect(DASHBOARD_ROUTE)
+  }
+)

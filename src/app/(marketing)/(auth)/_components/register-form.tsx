@@ -8,15 +8,15 @@ import ErrorMessage from '@/components/error-message'
 import SubmitButton from '@/components/submit-button'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { loginAction } from '@/features/users/auth/actions'
-import { REGISTER_ROUTE } from '@/lib/routes'
+import { registerAction } from '@/features/users/auth/actions'
+import { LOGIN_ROUTE } from '@/lib/routes'
 import { cn } from '@/lib/utils'
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<'form'>) {
-  const [state, formAction] = useActionState(loginAction, {})
+  const [state, formAction] = useActionState(registerAction, {})
 
   return (
     <form
@@ -47,6 +47,19 @@ export function LoginForm({
           <div className="grid gap-2">
             <CustomFormInput
               formElement="input"
+              inputType="text"
+              name="name"
+              label="Full name"
+              placeholder="John Doe"
+              defaultValue={state?.form?.name}
+              required
+              errors={state?.errors?.name}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <CustomFormInput
+              formElement="input"
               inputType="email"
               name="email"
               label="Email"
@@ -56,6 +69,7 @@ export function LoginForm({
               errors={state?.errors?.email}
             />
           </div>
+
           <div className="grid gap-2">
             <div className="flex items-center">
               <Label htmlFor="password">Password *</Label>
@@ -75,12 +89,12 @@ export function LoginForm({
               errors={state?.errors?.password}
             />
           </div>
-          <SubmitButton cta="Login" />
+          <SubmitButton cta="Register" />
         </div>
         <div className="text-center text-sm">
-          Don&apos;t have an account?{' '}
-          <Link href={REGISTER_ROUTE} className="underline underline-offset-4">
-            Sign up
+          Already have an account?{' '}
+          <Link href={LOGIN_ROUTE} className="underline underline-offset-4">
+            Login
           </Link>
         </div>
       </div>

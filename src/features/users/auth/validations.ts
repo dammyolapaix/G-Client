@@ -5,7 +5,7 @@ import { users } from '@/db/schema'
 import auth from '@/lib/auth'
 
 export default class AuthValidations {
-  private registerSchema = createInsertSchema(users, {
+  private authSchema = createInsertSchema(users, {
     email: z
       .string({ required_error: 'Email is required' })
       .email('Email must be a valid email')
@@ -20,5 +20,15 @@ export default class AuthValidations {
       }),
   })
 
-  login = this.registerSchema.pick({ email: true, password: true })
+  login = this.authSchema.pick({ email: true, password: true })
+
+  register = z.intersection(
+    this.authSchema,
+    z.object({
+      name: z
+        .string({ required_error: 'Name is required' })
+        .min(3, { message: 'Name must be at least 3 characters' })
+        .trim(),
+    })
+  )
 }

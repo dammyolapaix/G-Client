@@ -10,7 +10,7 @@ const profiles = pgTable('profiles', {
   phone: varchar({ length: 256 }),
   location: varchar({ length: 256 }),
   image: varchar({ length: 320 }),
-  disabled: boolean().notNull(),
+  disabled: boolean(),
   bio: text(),
   userId: uuid()
     .references(() => users.id, { onDelete: 'cascade' })
