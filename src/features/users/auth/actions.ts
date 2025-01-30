@@ -80,3 +80,23 @@ export const registerAction = auth.middlewares.validatedAction(
     redirect(DASHBOARD_ROUTE)
   }
 )
+
+export const completeProfileAction = auth.middlewares.validatedActionWithUser(
+  user.auth.validations.completeProfile,
+  ['learner'],
+  async (
+    state: Omit<
+      z.infer<typeof user.auth.validations.completeProfile>,
+      'disabled'
+    > & { disabled: boolean | string },
+    formData: FormData,
+    authUser
+  ) => {
+    await user.services.update(authUser.id, {
+      ...state,
+      disabled: state.disabled as boolean,
+    })
+
+    redirect(DASHBOARD_ROUTE)
+  }
+)

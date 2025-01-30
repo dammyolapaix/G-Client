@@ -6,6 +6,7 @@ import db from '@/db'
 import { profiles, users } from '@/db/schema'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 
+import { InsertProfile } from './profiles/types'
 import { InsertUser, ListUser, RetrieveUser } from './types'
 
 export default class UserServices {
@@ -58,4 +59,13 @@ export default class UserServices {
           : undefined,
       columns: query.password === true ? undefined : { password: false },
     })
+
+  update = async (
+    userId: string,
+    userProfileInfo: Omit<Partial<InsertProfile>, 'userId'>
+  ) =>
+    await db
+      .update(profiles)
+      .set(userProfileInfo)
+      .where(eq(profiles.userId, userId))
 }

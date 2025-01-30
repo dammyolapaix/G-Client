@@ -80,6 +80,9 @@ importers:
       jose:
         specifier: ^5.9.6
         version: 5.9.6
+      libphonenumber-js:
+        specifier: ^1.11.18
+        version: 1.11.18
       lucide-react:
         specifier: ^0.473.0
         version: 0.473.0(react@19.0.0)
