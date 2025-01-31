@@ -9,6 +9,7 @@ import {
 } from 'react'
 
 import { format } from 'date-fns'
+import { REGEXP_ONLY_DIGITS } from 'input-otp'
 import { CalendarIcon } from 'lucide-react'
 import { useDebouncedCallback } from 'use-debounce'
 
@@ -16,6 +17,11 @@ import ComboboxWithQueryParams from '@/components/combobox-with-query-params'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import { PhoneInput } from '@/components/ui/phone-input'
 import {
@@ -62,7 +68,7 @@ type SelectFormElementType = {
 
 type InputFormElementType = {
   formElement: FormElementType
-  inputType: HTMLInputTypeAttribute
+  inputType: HTMLInputTypeAttribute | 'otp'
   defaultValue?: HTMLAttributes<HTMLInputElement>['defaultValue']
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   isSearch?: true
@@ -94,6 +100,8 @@ function InputField(props: CustomFormFieldProps) {
   }
 
   const [date, setDate] = useState<Date>()
+  const [selectValue, setSelectValue] = useState(queryId || undefined)
+  const [otpValue, setOtpValue] = useState('')
 
   const handleSearch = useDebouncedCallback((term: string) => {
     if (term) {
@@ -106,8 +114,6 @@ function InputField(props: CustomFormFieldProps) {
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     handleSearch(e.target.value)
   }
-
-  const [selectValue, setSelectValue] = useState(queryId || undefined)
 
   const onSelectValueChange = (currentSelectValue: string) => {
     setSelectValue(currentSelectValue === selectValue ? '' : currentSelectValue)
@@ -188,6 +194,26 @@ function InputField(props: CustomFormFieldProps) {
                 className={`${!isSinglePage ? 'hidden' : ''}`}
               />
             </>
+          )
+
+        case 'otp':
+          return (
+            <InputOTP
+              value={otpValue}
+              onChange={(otpValue) => setOtpValue(otpValue)}
+              maxLength={6}
+              pattern={REGEXP_ONLY_DIGITS}
+              required={required}
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
           )
 
         default:
@@ -279,7 +305,7 @@ function ErrorMessage({ errors }: { errors?: CustomFormFieldProps['errors'] }) {
     <>
       {errors &&
         errors.map((error, index) => (
-          <p key={index} className="text-destructive text-sm font-medium">
+          <p key={index} className="text-sm font-medium text-destructive">
             {error}
           </p>
         ))}
@@ -305,7 +331,7 @@ export default function CustomFormInput(props: CustomFormFieldProps) {
 
       <InputField {...props} />
       {description && (
-        <p className="text-muted-foreground text-sm">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       )}
 
       <ErrorMessage errors={errors} />
