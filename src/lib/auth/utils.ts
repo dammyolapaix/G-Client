@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import 'server-only'
 
 import { compare, hash } from 'bcryptjs'
+import crypto from 'crypto'
 import { SignJWT, jwtVerify } from 'jose'
 
 import { env } from '@/env/server'
@@ -79,6 +80,45 @@ export default class AuthUtils {
       secure: true,
       sameSite: 'lax',
     })
+  }
+
+  private generateOTP = (): string => {
+    const characters = '0123456789'
+    let OTP = ''
+    for (let i = 0; i < 6; i++) {
+      const index = Math.floor(Math.random() * characters.length)
+      OTP += characters[index]
+    }
+    return OTP
+  }
+
+  private getHashedToken = (token: string) => {
+    // Hash the reset token
+    const hashedResetToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex')
+
+    return hashedResetToken
+  }
+
+  getToken = ({ tokenType }: { tokenType: 'password' | 'otp' }) => {
+    // Generate reset token (Not hashed)
+    const token =
+      tokenType === 'otp'
+        ? this.generateOTP()
+        : crypto.randomBytes(20).toString('hex')
+
+    // Hash the reset token
+    const hashedToken = this.getHashedToken(token)
+
+    const tokenExpiresAt = new Date(Date.now() + 10 * 60 * 10 * 100) // Expires in 10 mins
+
+    return {
+      token,
+      hashedToken,
+      tokenExpiresAt,
+    }
   }
 
   getAuthUser = async () => {
