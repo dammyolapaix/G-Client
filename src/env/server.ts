@@ -14,6 +14,7 @@ const stringBoolean = z
 export const env = createEnv({
   server: {
     NODE_ENV: z.enum(['development', 'production']),
+    BASE_URL: z.string().url(),
     DB_HOST: z.string().optional(),
     DB_USER: z.string().optional(),
     DB_PASSWORD: z.string().optional(),
