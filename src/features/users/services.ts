@@ -2,9 +2,12 @@ import 'server-only'
 
 import { and, eq } from 'drizzle-orm'
 
+import VerifyEmail from '@/components/email/verify-email'
 import db from '@/db'
 import { profiles, users } from '@/db/schema'
+import auth from '@/lib/auth'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
+import email from '@/lib/emails'
 
 import { InsertProfile } from './profiles/types'
 import { InsertUser, ListUser, RetrieveUser } from './types'
@@ -17,6 +20,10 @@ export default class UserServices {
     const { name, ...userInfo } = userProfileInfo
 
     let userId: undefined | string = undefined
+
+    const { token } = auth.utils.getToken({
+      tokenType: 'otp',
+    })
 
     await db.transaction(async (tx) => {
       const [user] = await tx
@@ -32,6 +39,12 @@ export default class UserServices {
         .returning({ id: profiles.id })
 
       if (!user || !profile) throw new Error(INTERNAL_ERROR_MESSAGE)
+    })
+
+    await email.send({
+      subject: 'Verify Your email',
+      to: [userInfo.email],
+      emailTemplate: VerifyEmail({ verificationCode: token }),
     })
 
     return { id: userId! }
