@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
 import auth from '@/lib/auth'
-import { DASHBOARD_ROUTE } from '@/lib/routes'
+import { DASHBOARD_ROUTE, VERIFY_EMAIL_ROUTE } from '@/lib/routes'
 
 import user from '..'
 
@@ -77,7 +77,7 @@ export const registerAction = auth.middlewares.validatedAction(
     // Set session
     await auth.utils.setSession({ id: createdUser.id })
 
-    redirect(DASHBOARD_ROUTE)
+    redirect(VERIFY_EMAIL_ROUTE)
   }
 )
 
