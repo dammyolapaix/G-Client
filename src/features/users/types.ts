@@ -26,7 +26,9 @@ export type RetrieveUser = SingleUserQuery &
   WithPassword &
   Omit<Partial<User>, 'id' | 'email' | 'password' | 'tokenExpiresAt'> & {
     tokenExpiresAtGte?: true
-  }
+  } & With<{
+    [key in keyof UserRelationships]: true
+  }>
 
 export type ListUser = Partial<Pick<User, 'role'>> &
   With<{

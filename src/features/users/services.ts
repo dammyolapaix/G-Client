@@ -77,6 +77,7 @@ export default class UserServices {
           : undefined
       ),
       columns: query.password === true ? undefined : { password: false },
+      with: query.with,
     })
 
   update = async (
