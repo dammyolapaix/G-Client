@@ -92,11 +92,11 @@ export default class AuthUtils {
     return OTP
   }
 
-  private getHashedToken = (token: string) => {
+  getHashedToken = (token: string | number) => {
     // Hash the reset token
     const hashedResetToken = crypto
       .createHash('sha256')
-      .update(token)
+      .update(token.toString())
       .digest('hex')
 
     return hashedResetToken
@@ -112,7 +112,9 @@ export default class AuthUtils {
     // Hash the reset token
     const hashedToken = this.getHashedToken(token)
 
-    const tokenExpiresAt = new Date(Date.now() + 10 * 60 * 10 * 100) // Expires in 10 mins
+    const tokenExpiresAt = new Date(
+      Date.now() + 10 * 60 * 10 * 100
+    ).toISOString() // Expires in 10 mins
 
     return {
       token,
