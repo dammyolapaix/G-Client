@@ -199,6 +199,7 @@ function InputField(props: CustomFormFieldProps) {
         case 'otp':
           return (
             <InputOTP
+              name={name}
               value={otpValue}
               onChange={(otpValue) => setOtpValue(otpValue)}
               maxLength={6}
