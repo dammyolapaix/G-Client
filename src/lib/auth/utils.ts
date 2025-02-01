@@ -141,4 +141,12 @@ export default class AuthUtils {
 
     return authUser
   }
+
+  authUserProfileIsCompleted = (authUser: UserWithRelationships) => {
+    if (authUser.role === 'admin') return true
+
+    if (authUser.profile === null) return false
+
+    return Object.values(authUser.profile).every((value) => value !== null)
+  }
 }
