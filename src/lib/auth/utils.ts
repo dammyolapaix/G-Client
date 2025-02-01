@@ -8,7 +8,8 @@ import { SignJWT, jwtVerify } from 'jose'
 
 import { env } from '@/env/server'
 import user from '@/features/users'
-import { SessionUser } from '@/types'
+import { UserWithRelationships } from '@/features/users/types'
+import { SessionUser, With } from '@/types'
 
 export default class AuthUtils {
   private SALT_ROUNDS = 10
@@ -123,11 +124,18 @@ export default class AuthUtils {
     }
   }
 
-  getAuthUser = async () => {
+  getAuthUser = async (
+    relationships?: With<{
+      [key in keyof UserWithRelationships]: true
+    }>
+  ) => {
     const session = await this.getSession()
     if (!session) return null
 
-    const authUser = await user.services.retrieve({ id: session.user.id })
+    const authUser = await user.services.retrieve({
+      id: session.user.id,
+      with: relationships?.with,
+    })
 
     if (!authUser) return null
 
