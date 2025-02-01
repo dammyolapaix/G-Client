@@ -80,4 +80,8 @@ export default class AuthValidations {
         message: 'The verification code must be at 6 characters',
       }),
   })
+
+  resendToken = z.object({
+    tokenType: z.enum(['password', 'otp']),
+  })
 }

@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation'
 
 import { z } from 'zod'
 
+import VerifyEmail from '@/components/email/verify-email'
 import auth from '@/lib/auth'
+import email from '@/lib/emails'
 import {
   COMPLETE_PROFILE_ROUTE,
   DASHBOARD_ROUTE,
@@ -124,6 +126,45 @@ export const verifyEmailAction = auth.middlewares.validatedActionWithUser(
     })
 
     redirect(COMPLETE_PROFILE_ROUTE)
+  }
+)
+
+export const resendTokenAction = auth.middlewares.validatedActionWithUser(
+  user.auth.validations.resendToken,
+  ['learner', 'instructor'],
+  async (
+    state: z.infer<typeof user.auth.validations.resendToken>,
+    formData: FormData,
+    authUser
+  ) => {
+    if (authUser.emailVerified)
+      return {
+        form: state,
+        error: 'Email already verified',
+      }
+
+    const { token, hashedToken, tokenExpiresAt } = auth.utils.getToken({
+      tokenType: state.tokenType,
+    })
+
+    await user.services.update(authUser.id, {
+      user: { token: hashedToken, tokenExpiresAt },
+    })
+
+    /**
+     * @todo
+     *
+     * Adjust the email subject and emailTemple for forget password
+     */
+    await email.send({
+      subject: 'Verify Your email',
+      to: [authUser.email],
+      emailTemplate: VerifyEmail({ verificationCode: token }),
+    })
+
+    return {
+      success: `We've sent an OTP code to your email "${authUser.email}", please check your inbox"`,
+    }
   }
 )
 
