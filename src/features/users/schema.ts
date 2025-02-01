@@ -12,6 +12,8 @@ const users = pgTable('users', {
   password: varchar({ length: 256 }),
   role: roleEnum().default('learner').notNull(),
   provider: authProviderEnum().default('email').notNull(),
+  token: varchar({ length: 320 }),
+  tokenExpiresAt: timestamp({ mode: 'string' }),
   ...timestamps,
 })
 
