@@ -7,17 +7,29 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { UserWithRelationships } from '@/features/users/types'
 import auth from '@/lib/auth'
-import { LOGIN_ROUTE } from '@/lib/routes'
+import {
+  COMPLETE_PROFILE_ROUTE,
+  LOGIN_ROUTE,
+  VERIFY_EMAIL_ROUTE,
+} from '@/lib/routes'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const authUser = await auth.utils.getAuthUser()
+  const authUser = (await auth.utils.getAuthUser({
+    with: { profile: true },
+  })) as UserWithRelationships
 
   if (!authUser) redirect(LOGIN_ROUTE)
+
+  if (!authUser.emailVerified) redirect(VERIFY_EMAIL_ROUTE)
+
+  if (!auth.utils.authUserProfileIsCompleted(authUser))
+    redirect(COMPLETE_PROFILE_ROUTE)
 
   return (
     <>
