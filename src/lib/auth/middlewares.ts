@@ -14,6 +14,7 @@ type FormState<State> = {
     [Key in keyof State]?: string[]
   }
   error?: string
+  success?: string
   form?: State
 }
 
