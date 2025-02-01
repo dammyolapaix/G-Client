@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { useActionState } from 'react'
 
 import CustomFormInput from '@/components/custom-form-inputs'
-import ErrorMessage from '@/components/error-message'
 import SubmitButton from '@/components/submit-button'
+import SuccessErrorMessage from '@/components/success-error-message'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { loginAction } from '@/features/users/auth/actions'
@@ -24,7 +24,9 @@ export function LoginForm({
       className={cn('flex flex-col gap-6', className)}
       {...props}
     >
-      {state?.error && <ErrorMessage message={state.error} />}
+      {state?.error && (
+        <SuccessErrorMessage messageType="error" message={state.error} />
+      )}
 
       <div className="grid gap-6">
         <div className="flex flex-col gap-4">

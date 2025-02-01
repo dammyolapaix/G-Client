@@ -5,8 +5,8 @@ import { useActionState, useState } from 'react'
 
 import CustomCldUploadWidget from '@/components/cld-upload-widget'
 import CustomFormInput from '@/components/custom-form-inputs'
-import ErrorMessage from '@/components/error-message'
 import SubmitButton from '@/components/submit-button'
+import SuccessErrorMessage from '@/components/success-error-message'
 import {
   Card,
   CardContent,
@@ -54,7 +54,9 @@ export default function CourseForm({ course, instructors }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {state?.error && <ErrorMessage message={state.error} />}
+        {state?.error && (
+          <SuccessErrorMessage messageType="error" message={state.error} />
+        )}
 
         <form action={formAction}>
           <div className="mb-5">

@@ -5,8 +5,8 @@ import { useActionState, useState } from 'react'
 
 import CustomCldUploadWidget from '@/components/cld-upload-widget'
 import CustomFormInput from '@/components/custom-form-inputs'
-import ErrorMessage from '@/components/error-message'
 import SubmitButton from '@/components/submit-button'
+import SuccessErrorMessage from '@/components/success-error-message'
 import { Label } from '@/components/ui/label'
 import { completeProfileAction } from '@/features/users/auth/actions'
 import { cn } from '@/lib/utils'
@@ -31,7 +31,9 @@ export function CompleteProfileForm({
       className={cn('flex flex-col gap-6', className)}
       {...props}
     >
-      {state?.error && <ErrorMessage message={state.error} />}
+      {state?.error && (
+        <SuccessErrorMessage messageType="error" message={state.error} />
+      )}
 
       <div className="grid gap-6">
         <div className="grid gap-2">
