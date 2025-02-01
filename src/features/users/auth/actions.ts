@@ -5,7 +5,11 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
 import auth from '@/lib/auth'
-import { DASHBOARD_ROUTE, VERIFY_EMAIL_ROUTE } from '@/lib/routes'
+import {
+  COMPLETE_PROFILE_ROUTE,
+  DASHBOARD_ROUTE,
+  VERIFY_EMAIL_ROUTE,
+} from '@/lib/routes'
 
 import user from '..'
 
@@ -81,6 +85,48 @@ export const registerAction = auth.middlewares.validatedAction(
   }
 )
 
+export const verifyEmailAction = auth.middlewares.validatedActionWithUser(
+  user.auth.validations.verifyEmail,
+  ['learner', 'instructor'],
+  async (
+    state: z.infer<typeof user.auth.validations.verifyEmail>,
+    formData: FormData,
+    authUser
+  ) => {
+    if (authUser.emailVerified)
+      return {
+        form: state,
+        error: 'Email already verified',
+      }
+
+    const token = auth.utils.getHashedToken(state.otp)
+
+    const userWithValidToken = await user.services.retrieve({
+      id: authUser.id,
+      token,
+      tokenExpiresAtGte: true,
+    })
+
+    if (!userWithValidToken)
+      return {
+        form: state,
+        error:
+          'Your code is invalid or has expired, please request for a new verification code',
+      }
+
+    // Verify user email
+    await user.services.update(authUser.id, {
+      user: {
+        emailVerified: new Date().toISOString(),
+        token: null,
+        tokenExpiresAt: null,
+      },
+    })
+
+    redirect(COMPLETE_PROFILE_ROUTE)
+  }
+)
+
 export const completeProfileAction = auth.middlewares.validatedActionWithUser(
   user.auth.validations.completeProfile,
   ['learner'],
@@ -93,8 +139,7 @@ export const completeProfileAction = auth.middlewares.validatedActionWithUser(
     authUser
   ) => {
     await user.services.update(authUser.id, {
-      ...state,
-      disabled: state.disabled as boolean,
+      profile: { ...state, disabled: state.disabled as boolean },
     })
 
     redirect(DASHBOARD_ROUTE)

@@ -70,4 +70,14 @@ export default class AuthValidations {
     userId: true,
     name: true,
   })
+
+  verifyEmail = z.object({
+    otp: z.coerce
+      .number({
+        message: 'The verification code is required and it must be a number',
+      })
+      .refine((val) => val.toString().length === 6, {
+        message: 'The verification code must be at 6 characters',
+      }),
+  })
 }

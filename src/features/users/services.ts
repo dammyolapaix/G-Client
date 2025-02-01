@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq } from 'drizzle-orm'
+import { and, eq, gte } from 'drizzle-orm'
 
 import VerifyEmail from '@/components/email/verify-email'
 import db from '@/db'
@@ -21,14 +21,14 @@ export default class UserServices {
 
     let userId: undefined | string = undefined
 
-    const { token } = auth.utils.getToken({
+    const { token, hashedToken, tokenExpiresAt } = auth.utils.getToken({
       tokenType: 'otp',
     })
 
     await db.transaction(async (tx) => {
       const [user] = await tx
         .insert(users)
-        .values(userInfo)
+        .values({ ...userInfo, token: hashedToken, tokenExpiresAt })
         .returning({ id: users.id })
 
       userId = user.id
@@ -65,20 +65,46 @@ export default class UserServices {
    */
   retrieve = async (query: RetrieveUser) =>
     await db.query.users.findFirst({
-      where: query.id
-        ? eq(users.id, query.id)
-        : query.email
-          ? eq(users.email, query.email)
-          : undefined,
+      where: and(
+        query.id
+          ? eq(users.id, query.id)
+          : query.email
+            ? eq(users.email, query.email)
+            : undefined,
+        query.token ? eq(users.token, query.token) : undefined,
+        query.tokenExpiresAtGte === true
+          ? gte(users.tokenExpiresAt, new Date().toISOString())
+          : undefined
+      ),
       columns: query.password === true ? undefined : { password: false },
     })
 
   update = async (
     userId: string,
-    userProfileInfo: Omit<Partial<InsertProfile>, 'userId'>
+    userProfileInfo: {
+      user?: Partial<InsertUser>
+      profile?: Omit<Partial<InsertProfile>, 'userId'>
+    }
   ) =>
-    await db
-      .update(profiles)
-      .set(userProfileInfo)
-      .where(eq(profiles.userId, userId))
+    await db.transaction(async (tx) => {
+      if (userProfileInfo.user) {
+        const [user] = await tx
+          .update(users)
+          .set(userProfileInfo.user)
+          .where(eq(users.id, userId))
+          .returning({ id: users.id })
+
+        if (!user) throw new Error(INTERNAL_ERROR_MESSAGE)
+      }
+
+      if (userProfileInfo.profile) {
+        const [profile] = await tx
+          .update(profiles)
+          .set(userProfileInfo.profile)
+          .where(eq(profiles.userId, userId))
+          .returning({ id: profiles.id })
+
+        if (!profile) throw new Error(INTERNAL_ERROR_MESSAGE)
+      }
+    })
 }
