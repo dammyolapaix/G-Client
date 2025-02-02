@@ -1,10 +1,11 @@
 import Image from 'next/image'
 
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import course from '@/features/courses'
 import { CourseWithRelationships } from '@/features/courses/types'
 import utils from '@/lib/utils'
+
+import { PurchaseCourseButton } from './purchase-course-button'
 
 export default async function Courses() {
   const courses = await course.services.list()
@@ -38,7 +39,7 @@ type CourseItemProps = {
 }
 
 function CourseItem({
-  course: { title, image, price, duration, instructor },
+  course: { id, title, image, price, duration, instructor },
 }: CourseItemProps) {
   return (
     <Card>
@@ -66,7 +67,7 @@ function CourseItem({
           <div className="font-semibold">{instructor.profile?.name}</div>
         </div>
 
-        <Button>Purchase Course</Button>
+        <PurchaseCourseButton courseId={id} />
       </CardContent>
     </Card>
   )

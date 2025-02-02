@@ -1,4 +1,4 @@
-import Courses from '@/components/courses'
+import Courses from '@/app/(marketing)/_components/courses'
 import Hero from '@/components/hero'
 
 export default function Home() {

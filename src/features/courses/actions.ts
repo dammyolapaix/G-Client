@@ -46,3 +46,38 @@ export const updateCourseAction = auth.middlewares.validatedActionWithUser(
     redirect(DASHBOARD_COURSES_ROUTE)
   }
 )
+
+export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
+  course.validations.purchase,
+  ['learner'],
+  async (
+    state: z.infer<typeof course.validations.purchase>,
+    formData: FormData,
+    authUser
+  ) => {
+    console.log(state, authUser)
+    const { id: learnerId, email: learnerEmail } = authUser
+
+    // if (!auth.utils.authUserProfileIsCompleted(authUser))
+    //   return {
+    //     error: 'Please complete your profile before purchasing a course',
+    //   }
+    const courseExist = await course.services.retrieve({ id: state.courseId })
+
+    if (!courseExist)
+      return {
+        error: 'Course does not exist exist',
+      }
+
+    const { price: amount, id: courseId } = courseExist
+
+    const purchaseCourse = await course.services.purchaseCourse({
+      amount,
+      courseId,
+      learnerId,
+      learnerEmail,
+    })
+
+    redirect(purchaseCourse.transactionAuthorizationUrl)
+  }
+)

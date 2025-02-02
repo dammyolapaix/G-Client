@@ -49,4 +49,12 @@ export default class CourseValidations {
       })
     }
   })
+
+  purchase = z.object({
+    courseId: z
+      .string({
+        required_error: 'The course is required',
+      })
+      .uuid({ message: 'The course is required' }),
+  })
 }
