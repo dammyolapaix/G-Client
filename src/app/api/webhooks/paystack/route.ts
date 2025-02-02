@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 
 import { env } from '@/env/server'
+import course from '@/features/courses'
 import { ChargeSuccessEvent } from '@/lib/payments/types'
 
 export async function POST(request: Request) {
@@ -15,7 +16,8 @@ export async function POST(request: Request) {
     if (hash == request.headers.get('x-paystack-signature')) {
       switch (reqBody.event) {
         case 'charge.success':
-          // do something
+          await course.services.enrollLearnerToCourse(reqBody.data)
+
           break
 
         default:

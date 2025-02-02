@@ -6,6 +6,7 @@ import db from '@/db'
 import { courses } from '@/db/schema'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 import paystack from '@/lib/payments/paystack'
+import { TransactionSuccessResponse } from '@/lib/payments/types'
 
 import courseToLearner from './coursesToLearners'
 import { InsertCourse, ListCourse, RetrieveCourse } from './types'
@@ -85,5 +86,40 @@ export default class CourseServices {
     })
 
     return { transactionAuthorizationUrl: transaction.data.authorization_url }
+  }
+
+  enrollLearnerToCourse = async ({
+    amount,
+    status,
+    paid_at: paidAt,
+    reference: paystackReference,
+    id: paystackTransactionId,
+  }: TransactionSuccessResponse) => {
+    // This may never occur, just an extra check
+    const transactionExist = await courseToLearner.services.retrieve({
+      paystackReference,
+    })
+
+    if (!transactionExist) throw new Error(INTERNAL_ERROR_MESSAGE)
+
+    if (transactionExist.paidAt) return
+
+    // This may never occur, just an extra check. We'll be listening to a 'charge.success' event
+    if (
+      status !== 'success' ||
+      paidAt === null ||
+      amount !== transactionExist.amount
+    )
+      throw new Error(INTERNAL_ERROR_MESSAGE)
+
+    const { courseId, learnerId } = transactionExist
+
+    // Enroll Learner
+    await courseToLearner.services.update({
+      courseId,
+      learnerId,
+      paidAt,
+      paystackTransactionId,
+    })
   }
 }

@@ -28,7 +28,7 @@ export type InitializeTransaction = {
   email: string
   amount: string
   currency: Currency
-  }
+}
 
 export type InitializeTransactionResponse = {
   authorization_url: string
@@ -36,7 +36,7 @@ export type InitializeTransactionResponse = {
   reference: string
 }
 
-type TransactionSuccessResponse = {
+export type TransactionSuccessResponse = {
   id: number
   domain: 'test' | 'live'
   status: 'success' | 'abandoned' | 'failed'
@@ -54,7 +54,6 @@ type TransactionSuccessResponse = {
   plan: unknown | null
   split: Record<string, unknown>
   order_id: string | null
-  paidAt: string | null // ISO 8601 format date
   createdAt: string // ISO 8601 format date
   transaction_date: string // ISO 8601 format date
 }
