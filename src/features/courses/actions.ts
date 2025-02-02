@@ -9,6 +9,7 @@ import auth from '@/lib/auth'
 import { DASHBOARD_COURSES_ROUTE } from '@/lib/routes'
 
 import course from '.'
+import courseToLearner from './coursesToLearners'
 
 export const createCourseAction = auth.middlewares.validatedActionWithUser(
   course.validations.create,
@@ -70,12 +71,26 @@ export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
         error: 'Course does not exist exist',
       }
 
-    // const learnerHasAttemptedCoursePurchase =
-    //   await courseToLearner.services.retrieve({ courseId, learnerId })
+    const learnerHasAttemptedCoursePurchase =
+      await courseToLearner.services.retrieve({ courseId, learnerId })
 
-    // if (learnerHasAttemptedCoursePurchase) {
-    //   // Check if learner has paid for course
-    // }
+    // Check if learner has paid for course (enrolled)
+    const learnerIsEnrolledToCourse =
+      learnerHasAttemptedCoursePurchase &&
+      learnerHasAttemptedCoursePurchase.paidAt
+        ? true
+        : false
+
+    if (learnerIsEnrolledToCourse)
+      return {
+        error:
+          "You've already enrolled to this course, please visit your dashboard to start learning!",
+      }
+
+    // Helps to indicate if the courseToLearner is to be created or updated
+    const isCompletingCoursePurchase = learnerHasAttemptedCoursePurchase
+      ? true
+      : false
 
     const { price: amount } = courseExist
 
@@ -84,6 +99,7 @@ export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
       courseId,
       learnerId,
       learnerEmail,
+      isCompletingCoursePurchase,
     })
 
     redirect(purchaseCourse.transactionAuthorizationUrl)

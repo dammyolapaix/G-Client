@@ -55,11 +55,13 @@ export default class CourseServices {
     learnerId,
     amount,
     learnerEmail,
+    isCompletingCoursePurchase,
   }: {
     learnerId: string
     courseId: string
     amount: number
     learnerEmail: string
+    isCompletingCoursePurchase: boolean | undefined
   }) => {
     /**
      * @todo
@@ -78,12 +80,20 @@ export default class CourseServices {
 
     if (!transaction) throw new Error(INTERNAL_ERROR_MESSAGE)
 
-    await courseToLearner.services.create({
-      learnerId,
-      courseId,
-      amount,
-      paystackReference: transaction.data.reference,
-    })
+    if (!isCompletingCoursePurchase)
+      await courseToLearner.services.create({
+        learnerId,
+        courseId,
+        amount,
+        paystackReference: transaction.data.reference,
+      })
+
+    if (isCompletingCoursePurchase)
+      await courseToLearner.services.update({
+        learnerId,
+        courseId,
+        paystackReference: transaction.data.reference,
+      })
 
     return { transactionAuthorizationUrl: transaction.data.authorization_url }
   }
