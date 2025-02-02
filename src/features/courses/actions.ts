@@ -55,13 +55,14 @@ export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
     formData: FormData,
     authUser
   ) => {
-    console.log(state, authUser)
     const { id: learnerId, email: learnerEmail } = authUser
+    const { courseId } = state
 
     // if (!auth.utils.authUserProfileIsCompleted(authUser))
     //   return {
     //     error: 'Please complete your profile before purchasing a course',
     //   }
+
     const courseExist = await course.services.retrieve({ id: state.courseId })
 
     if (!courseExist)
@@ -69,7 +70,14 @@ export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
         error: 'Course does not exist exist',
       }
 
-    const { price: amount, id: courseId } = courseExist
+    // const learnerHasAttemptedCoursePurchase =
+    //   await courseToLearner.services.retrieve({ courseId, learnerId })
+
+    // if (learnerHasAttemptedCoursePurchase) {
+    //   // Check if learner has paid for course
+    // }
+
+    const { price: amount } = courseExist
 
     const purchaseCourse = await course.services.purchaseCourse({
       amount,

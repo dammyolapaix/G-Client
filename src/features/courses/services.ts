@@ -69,20 +69,20 @@ export default class CourseServices {
      * 4. Create invoice and set invoiceId as the paystack reference
      */
 
-    const createdCourseToLearner = await courseToLearner.services.create({
-      learnerId,
-      courseId,
-      amount,
-    })
-
     const transaction = await paystack.initializeTransaction({
       amount: amount.toString(),
       currency: 'GHS',
       email: learnerEmail,
-      reference: createdCourseToLearner.id,
     })
 
     if (!transaction) throw new Error(INTERNAL_ERROR_MESSAGE)
+
+    await courseToLearner.services.create({
+      learnerId,
+      courseId,
+      amount,
+      paystackReference: transaction.data.reference,
+    })
 
     return { transactionAuthorizationUrl: transaction.data.authorization_url }
   }
