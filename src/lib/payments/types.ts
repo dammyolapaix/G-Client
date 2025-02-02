@@ -28,6 +28,7 @@ export type InitializeTransaction = {
   email: string
   amount: string
   currency: Currency
+  reference: string
 }
 
 export type InitializeTransactionResponse = {
