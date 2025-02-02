@@ -1,8 +1,7 @@
 import { relations } from 'drizzle-orm'
-import { date, pgTable, primaryKey, unique, uuid } from 'drizzle-orm/pg-core'
+import { bigint, date, integer, pgTable, uuid } from 'drizzle-orm/pg-core'
 
-import { applicationStatusEnum } from '@/db/enums'
-import { courses, invoices, users } from '@/db/schema'
+import { courses, users } from '@/db/schema'
 
 /**
  * This schema is to track
@@ -10,27 +9,19 @@ import { courses, invoices, users } from '@/db/schema'
  * 2. The learners enrollment for a course
  */
 
-const coursesToLearners = pgTable(
-  'courses_to_learners',
-  {
-    courseId: uuid()
-      .references(() => courses.id, { onDelete: 'cascade' })
-      .notNull(),
-    learnerId: uuid()
-      .references(() => users.id, { onDelete: 'cascade' })
-      .notNull(),
-    invoiceId: uuid()
-      .references(() => invoices.id, { onDelete: 'cascade' })
-      .notNull(),
-    applicationDate: date({ mode: 'string' }).defaultNow().notNull(),
-    status: applicationStatusEnum().default('pending').notNull(),
-    acceptanceDeclineDate: date({ mode: 'string' }),
-  },
-  (t) => ({
-    pk: primaryKey({ columns: [t.courseId, t.learnerId] }),
-    unq: unique().on(t.courseId, t.learnerId),
-  })
-)
+const coursesToLearners = pgTable('courses_to_learners', {
+  id: uuid().primaryKey().defaultRandom().notNull(),
+  courseId: uuid()
+    .references(() => courses.id, { onDelete: 'cascade' })
+    .notNull(),
+  learnerId: uuid()
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  amount: integer().notNull(),
+  date: date({ mode: 'string' }).defaultNow().notNull(),
+  paidAt: date(),
+  paystackTransactionId: bigint({ mode: 'number' }),
+})
 
 export const coursesToLearnersRelations = relations(
   coursesToLearners,

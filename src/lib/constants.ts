@@ -2,10 +2,6 @@ export const ROLES = ['admin', 'instructor', 'learner'] as const
 
 export const AUTH_PROVIDERS = ['email', 'google'] as const
 
-
-
-export const APPLICATION_STATUSES = ['pending', 'accepted', 'declined'] as const
-
 export const INTERNAL_ERROR_MESSAGE =
   'Something went wrong from our end, please try again later. Report the issue if it persists' as const
 
