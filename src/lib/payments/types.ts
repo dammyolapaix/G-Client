@@ -28,6 +28,7 @@ export type InitializeTransaction = {
   email: string
   amount: string
   currency: Currency
+  callback_url: string
 }
 
 export type InitializeTransactionResponse = {

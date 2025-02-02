@@ -4,6 +4,7 @@ import { and, eq, ilike } from 'drizzle-orm'
 
 import db from '@/db'
 import { courses } from '@/db/schema'
+import { env } from '@/env/server'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 import paystack from '@/lib/payments/paystack'
 import { TransactionSuccessResponse } from '@/lib/payments/types'
@@ -76,6 +77,7 @@ export default class CourseServices {
       amount: amount.toString(),
       currency: 'GHS',
       email: learnerEmail,
+      callback_url: `${env.BASE_URL}/confirm-payment?courseId=${courseId}`,
     })
 
     if (!transaction) throw new Error(INTERNAL_ERROR_MESSAGE)
