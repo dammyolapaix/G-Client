@@ -147,6 +147,8 @@ export default class AuthUtils {
 
     if (authUser.profile === null) return false
 
-    return Object.values(authUser.profile).every((value) => value !== null)
+    const { deletedAt, ...profile } = authUser.profile
+
+    return Object.values(profile).every((value) => value !== null)
   }
 }
