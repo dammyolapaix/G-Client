@@ -63,4 +63,13 @@ export default class CourseToLearnerServices {
         query.paidAtIsNotNull ? isNotNull(coursesToLearners.paidAt) : undefined
       ),
     })
+
+  list = async () =>
+    await db.query.coursesToLearners.findMany({
+      where: and(isNotNull(coursesToLearners.paidAt)),
+      with: {
+        course: true,
+        learner: { columns: { password: false }, with: { profile: true } },
+      },
+    })
 }
