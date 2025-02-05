@@ -1,9 +1,9 @@
 import 'server-only'
 
-import { and, eq, isNotNull } from 'drizzle-orm'
+import { and, eq, getTableColumns, ilike, isNotNull } from 'drizzle-orm'
 
 import db from '@/db'
-import { coursesToLearners } from '@/db/schema'
+import { courses, coursesToLearners, profiles, users } from '@/db/schema'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 
 import { CourseToLearner, InsertCourseToLearner } from './types'
@@ -64,12 +64,35 @@ export default class CourseToLearnerServices {
       ),
     })
 
-  list = async () =>
-    await db.query.coursesToLearners.findMany({
-      where: and(isNotNull(coursesToLearners.paidAt)),
-      with: {
-        course: true,
-        learner: { columns: { password: false }, with: { profile: true } },
-      },
-    })
+  list = async (
+    query?: Partial<
+      Pick<CourseToLearner, 'courseId' | 'learnerId'> & {
+        learnerName: string
+      }
+    >
+  ) =>
+    await db
+      .select({
+        ...getTableColumns(coursesToLearners),
+        course: { ...getTableColumns(courses) },
+        learner: { ...getTableColumns(profiles) },
+      })
+      .from(coursesToLearners)
+      .innerJoin(courses, eq(courses.id, coursesToLearners.courseId))
+      .innerJoin(users, eq(users.id, coursesToLearners.learnerId))
+      .innerJoin(profiles, eq(profiles.userId, users.id))
+      .where(
+        and(
+          isNotNull(coursesToLearners.paidAt),
+          query?.courseId
+            ? eq(coursesToLearners.courseId, query.courseId)
+            : undefined,
+          query?.learnerId
+            ? eq(coursesToLearners.learnerId, query.learnerId)
+            : undefined,
+          query?.learnerName
+            ? ilike(profiles.name, `%${query.learnerName}%`)
+            : undefined
+        )
+      )
 }

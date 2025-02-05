@@ -4,10 +4,18 @@ import Skeleton from '@/components/skeleton'
 
 import Learners from './_components/learners'
 
-export default function LearnersPage() {
+type Props = {
+  searchParams: Promise<{
+    learnerName?: string
+    courseId?: string
+  }>
+}
+
+export default async function LearnersPage(props: Props) {
+  const searchParams = await props.searchParams
   return (
     <Suspense fallback={<Skeleton />}>
-      <Learners />
+      <Learners searchParams={searchParams} />
     </Suspense>
   )
 }

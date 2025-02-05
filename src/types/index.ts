@@ -7,6 +7,12 @@ export type SessionUser = {
   expires: string
 }
 
+export type Columns<Entity> = {
+  columns?: {
+    [Key in keyof Entity]?: boolean
+  }
+}
+
 type TrueEntity = {
   [key: string]: true | TrueEntity
 }
