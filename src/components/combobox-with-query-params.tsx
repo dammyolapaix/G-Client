@@ -33,7 +33,7 @@ export default function ComboboxWithQueryParams({
     } else {
       setQueryParam(
         query,
-        items.find(({ name }) => name === currentValue)?.id || ''
+        items.find(({ name }) => name.trim() === currentValue.trim())?.id || ''
       )
     }
   }
