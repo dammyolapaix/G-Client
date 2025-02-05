@@ -17,6 +17,7 @@ import { NoItemFoundProps } from '@/types'
 import NoItemFound from './no-item-found'
 
 type Props = {
+  title: string
   button?: LinkButton | ModalButton
   searchFilter?: ReactNode
   items: {
@@ -52,10 +53,11 @@ type ModalButton = {
 }
 
 export default function ViewItems(props: Props) {
-  const { button, items, searchFilter, noItemFound } = props
+  const { button, items, searchFilter, noItemFound, title } = props
 
   return (
     <>
+      <div className="text-lg font-bold">{title}</div>
       <div className="flex items-center justify-between gap-5">
         {searchFilter}
 
