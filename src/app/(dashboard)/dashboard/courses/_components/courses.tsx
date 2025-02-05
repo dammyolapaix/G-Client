@@ -13,8 +13,12 @@ import {
 } from '@/lib/routes'
 import utils from '@/lib/utils'
 
-export default async function Courses() {
-  const courses = await course.services.list()
+type Props = {
+  searchParams: { title?: string }
+}
+
+export default async function Courses({ searchParams: { title } }: Props) {
+  const courses = await course.services.list({ title })
 
   return (
     <>
