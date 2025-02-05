@@ -66,18 +66,18 @@ type LearnerItemProps = {
   learner: CourseToLearnerWithRelationships
 }
 
-function LearnerItem({ learner: { course, learner, date } }: LearnerItemProps) {
+function LearnerItem({ learner: { course, profile, date } }: LearnerItemProps) {
   return (
     <TableRow>
       <TableCell className="flex items-center gap-3 font-medium">
         <Image
-          alt={`photo of ${learner?.name}`}
-          src={learner?.image!}
+          alt={`photo of ${profile?.name}`}
+          src={profile?.image!}
           width={100}
           height={100}
           className="h-10 w-10 rounded-full"
         />
-        {learner?.name}
+        {profile?.name}
       </TableCell>
       <TableCell>{course.title}</TableCell>
       <TableCell>GHS {utils.formatToMoney(course.price)}</TableCell>
