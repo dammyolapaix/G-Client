@@ -1,5 +1,5 @@
 import { users } from '@/db/schema'
-import { With } from '@/types'
+import { Columns, With } from '@/types'
 
 import { Profile } from './profiles/types'
 
@@ -31,6 +31,7 @@ export type RetrieveUser = SingleUserQuery &
   }>
 
 export type ListUser = Partial<Pick<User, 'role'>> &
+  Columns<User> &
   With<{
     [key in keyof UserRelationships]: true
   }>
