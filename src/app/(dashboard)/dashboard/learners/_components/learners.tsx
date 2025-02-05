@@ -10,6 +10,8 @@ import courseToLearner from '@/features/courses/coursesToLearners'
 import { CourseToLearnerWithRelationships } from '@/features/courses/coursesToLearners/types'
 import utils from '@/lib/utils'
 
+import LearnerDetails from './learner-details'
+
 type Props = {
   searchParams: { learnerName?: string; courseId?: string }
 }
@@ -66,7 +68,8 @@ type LearnerItemProps = {
   learner: CourseToLearnerWithRelationships
 }
 
-function LearnerItem({ learner: { course, profile, date } }: LearnerItemProps) {
+function LearnerItem({ learner }: LearnerItemProps) {
+  const { course, profile, user, date } = learner
   return (
     <TableRow>
       <TableCell className="flex items-center gap-3 font-medium">
@@ -82,6 +85,9 @@ function LearnerItem({ learner: { course, profile, date } }: LearnerItemProps) {
       <TableCell>{course.title}</TableCell>
       <TableCell>GHS {utils.formatToMoney(course.price)}</TableCell>
       <TableCell>{format(date, 'PP')}</TableCell>
+      <TableCell>
+        <LearnerDetails learner={learner} />
+      </TableCell>
     </TableRow>
   )
 }
