@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, getTableColumns, ilike, isNotNull } from 'drizzle-orm'
+import { and, eq, getTableColumns, ilike, isNotNull, isNull } from 'drizzle-orm'
 
 import db from '@/db'
 import { courses, coursesToLearners, profiles, users } from '@/db/schema'
@@ -68,14 +68,17 @@ export default class CourseToLearnerServices {
     query?: Partial<
       Pick<CourseToLearner, 'courseId' | 'learnerId'> & {
         learnerName: string
-      }
+      } & { invoiceStatus: 'paid' | 'pending' }
     >
-  ) =>
-    await db
+  ) => {
+    const { password, ...usersTable } = getTableColumns(users)
+
+    return await db
       .select({
         ...getTableColumns(coursesToLearners),
         course: { ...getTableColumns(courses) },
-        learner: { ...getTableColumns(profiles) },
+        profile: { ...getTableColumns(profiles) },
+        user: { ...usersTable },
       })
       .from(coursesToLearners)
       .innerJoin(courses, eq(courses.id, coursesToLearners.courseId))
@@ -83,7 +86,11 @@ export default class CourseToLearnerServices {
       .innerJoin(profiles, eq(profiles.userId, users.id))
       .where(
         and(
-          isNotNull(coursesToLearners.paidAt),
+          query?.invoiceStatus === 'paid'
+            ? isNotNull(coursesToLearners.paidAt)
+            : query?.invoiceStatus === 'pending'
+              ? isNull(coursesToLearners.paidAt)
+              : undefined,
           query?.courseId
             ? eq(coursesToLearners.courseId, query.courseId)
             : undefined,
@@ -95,4 +102,5 @@ export default class CourseToLearnerServices {
             : undefined
         )
       )
+  }
 }
