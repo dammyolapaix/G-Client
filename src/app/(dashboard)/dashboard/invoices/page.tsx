@@ -1,11 +1,12 @@
 import { Suspense } from 'react'
 
 import Skeleton from '@/components/skeleton'
+import { CoursePaymentStatus } from '@/features/courses/payments/types'
 
 import Invoices from './_components/invoices'
 
 type Props = {
-  searchParams: Promise<{ invoiceStatus: 'paid' | 'pending' }>
+  searchParams: Promise<{ invoiceStatus?: CoursePaymentStatus }>
 }
 
 export default async function InvoicesPage(props: Props) {

@@ -6,20 +6,21 @@ import { Check, Clock } from 'lucide-react'
 import CustomFormInput from '@/components/custom-form-inputs'
 import { TableCell, TableRow } from '@/components/ui/table'
 import ViewItems from '@/components/view-items'
-import courseToLearner from '@/features/courses/coursesToLearners'
-import { CourseToLearnerWithRelationships } from '@/features/courses/coursesToLearners/types'
+import coursePayment from '@/features/courses/payments'
+import {
+  CoursePaymentRelationships,
+  CoursePaymentStatus,
+} from '@/features/courses/payments/types'
 import utils from '@/lib/utils'
 
 type Props = {
-  searchParams: { invoiceStatus: 'paid' | 'pending' }
+  searchParams: { invoiceStatus?: CoursePaymentStatus }
 }
 
 export default async function Invoices({
   searchParams: { invoiceStatus },
 }: Props) {
-  const invoices = await courseToLearner.services.list({
-    invoiceStatus,
-  })
+  const invoices = await coursePayment.services.list({ invoiceStatus })
 
   return (
     <ViewItems
@@ -38,7 +39,7 @@ export default async function Invoices({
         ],
         tableBody: invoices.map((courseToLearner) => (
           <InvoiceItem
-            key={`${courseToLearner.learnerId}${courseToLearner.courseId}`}
+            key={`${courseToLearner.course.id}${courseToLearner.user.id}`}
             courseToLearner={courseToLearner}
           />
         )),
@@ -55,19 +56,18 @@ export default async function Invoices({
 }
 
 type CourseLearnerItemProps = {
-  courseToLearner: CourseToLearnerWithRelationships
+  courseToLearner: CoursePaymentRelationships
 }
 
 function InvoiceItem({
-  courseToLearner: { course, profile, user, date, paidAt },
+  courseToLearner: { profile, user, paidAt, status, totalCoursePayment },
 }: CourseLearnerItemProps) {
-  const isPaidInvoice = paidAt !== null
   return (
     <TableRow>
       <TableCell className="flex items-center gap-3 font-medium">
         <Image
           alt={`photo of ${profile?.name}`}
-          src={profile?.image!}
+          src={profile.image!}
           width={100}
           height={100}
           className="h-10 w-10 rounded-full"
@@ -75,9 +75,9 @@ function InvoiceItem({
         {profile?.name}
       </TableCell>
       <TableCell>{user.email}</TableCell>
-      <TableCell>GHS {utils.formatToMoney(course.price)}</TableCell>
-      <TableCell>{format(date, 'PP')}</TableCell>
-      <InvoiceStatus isPaidInvoice={isPaidInvoice} />
+      <TableCell>GHS {utils.formatToMoney(totalCoursePayment)}</TableCell>
+      <TableCell>{format(paidAt, 'PP')}</TableCell>
+      <InvoiceStatus status={status} />
     </TableRow>
   )
 }
@@ -101,8 +101,8 @@ function SearchFilter() {
   )
 }
 
-function InvoiceStatus({ isPaidInvoice }: { isPaidInvoice: boolean }) {
-  if (isPaidInvoice) {
+function InvoiceStatus({ status }: { status: CoursePaymentStatus }) {
+  if (status === 'Paid') {
     return (
       <TableCell>
         <div className="flex items-center justify-center gap-1 rounded-sm bg-green-600 py-1 text-center text-white">
