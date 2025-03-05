@@ -10,7 +10,7 @@ export default function Hero() {
   return (
     <div className="flex min-h-[700px] flex-col items-center justify-center bg-primary text-primary-foreground">
       <div className="mx-auto grid w-10/12 grid-cols-1 gap-10 md:grid-cols-2">
-        <div className="mx-auto flex flex-col justify-center md:order-2">
+        <div className="md:order-2">
           <Image
             alt="computer image"
             src={computerImage}
@@ -19,7 +19,7 @@ export default function Hero() {
             className="h-full w-full"
           />
         </div>
-        <div className="flex flex-col justify-center md:order-1 md:w-2/3">
+        <div className="flex flex-col justify-center md:order-1">
           <h1 className="text-2xl font-bold md:text-3xl lg:text-4xl">
             Unlock Your Potential with Industry-Leading Courses!
           </h1>
