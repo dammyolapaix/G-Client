@@ -1,12 +1,21 @@
+import { Suspense } from 'react'
+
+import Skeleton from '@/components/skeleton'
+
+import LatestInvoices from './_components/latest-invoices'
+import Stats from './_components/stats'
+
 export default function DashboardPage() {
   return (
     <section>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
-        <div className="bg-muted/50 aspect-video rounded-xl" />
+      <Suspense fallback={<Skeleton />}>
+        <Stats />
+      </Suspense>
+      <div className="my-10 grid grid-cols-2 gap-10">
+        <Suspense fallback={<Skeleton />}>
+          <LatestInvoices />
+        </Suspense>
       </div>
-      <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
     </section>
   )
 }
