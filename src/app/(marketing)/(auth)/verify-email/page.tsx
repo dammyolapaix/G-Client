@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import auth from '@/lib/auth'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@/lib/routes'
@@ -14,8 +15,10 @@ export default async function VerifyEmailPage() {
   if (authUser.emailVerified) redirect(DASHBOARD_ROUTE)
 
   return (
-    <AuthLayout
-      component={<VerifyEmailForm authUserEmail={authUser.email} />}
-    />
+    <Suspense>
+      <AuthLayout
+        component={<VerifyEmailForm authUserEmail={authUser.email} />}
+      />
+    </Suspense>
   )
 }

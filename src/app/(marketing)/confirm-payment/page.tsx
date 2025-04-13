@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import courseToLearner from '@/features/courses/coursesToLearners'
 import auth from '@/lib/auth'
@@ -24,8 +25,10 @@ export default async function ConfirmPaymentPage(props: {
   })
 
   return (
-    <div>
-      {authUserCourseEnrolled ? 'Payment Successful' : 'Payment Failed'}
-    </div>
+    <Suspense>
+      <div>
+        {authUserCourseEnrolled ? 'Payment Successful' : 'Payment Failed'}
+      </div>
+    </Suspense>
   )
 }
