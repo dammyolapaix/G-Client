@@ -121,7 +121,8 @@ export default class InvoiceServices {
             : undefined,
           query?.learnerName
             ? ilike(profiles.name, `%${query.learnerName}%`)
-            : undefined
+            : undefined,
+          query?.status ? eq(invoices.status, query.status) : undefined
         )
       )
 

@@ -1,26 +1,25 @@
 import Image from 'next/image'
 
 import { format } from 'date-fns'
-import { Check, Clock } from 'lucide-react'
+import { CheckCircle2Icon, LoaderIcon } from 'lucide-react'
 
 import CustomFormInput from '@/components/custom-form-inputs'
+import { Badge } from '@/components/ui/badge'
 import { TableCell, TableRow } from '@/components/ui/table'
 import ViewItems from '@/components/view-items'
-import coursePayment from '@/features/courses/payments'
+import invoice from '@/features/invoices'
 import {
-  CoursePaymentRelationships,
-  CoursePaymentStatus,
-} from '@/features/courses/payments/types'
+  InvoiceStatus,
+  InvoiceWithRelationships,
+} from '@/features/invoices/types'
 import utils from '@/lib/utils'
 
 type Props = {
-  searchParams: { invoiceStatus?: CoursePaymentStatus }
+  searchParams: { status?: InvoiceStatus }
 }
 
-export default async function Invoices({
-  searchParams: { invoiceStatus },
-}: Props) {
-  const invoices = await coursePayment.services.list({ invoiceStatus })
+export default async function Invoices({ searchParams: { status } }: Props) {
+  const invoices = await invoice.services.list({ status })
 
   return (
     <ViewItems
@@ -34,14 +33,11 @@ export default async function Invoices({
           { name: 'Learner' },
           { name: 'Email' },
           { name: 'Amount' },
-          { name: 'Date' },
+          { name: 'Due/Paid Date' },
           { name: 'Status' },
         ],
-        tableBody: invoices.map((courseToLearner) => (
-          <InvoiceItem
-            key={`${courseToLearner.course.id}${courseToLearner.user.id}`}
-            courseToLearner={courseToLearner}
-          />
+        tableBody: invoices.map((invoice) => (
+          <InvoiceItem key={invoice.id} invoice={invoice} />
         )),
       }}
       noItemFound={{
@@ -55,13 +51,13 @@ export default async function Invoices({
   )
 }
 
-type CourseLearnerItemProps = {
-  courseToLearner: CoursePaymentRelationships
+type InvoiceItemProps = {
+  invoice: InvoiceWithRelationships
 }
 
 function InvoiceItem({
-  courseToLearner: { profile, user, paidAt, status, totalCoursePayment },
-}: CourseLearnerItemProps) {
+  invoice: { profile, user, paidAt, status, amount, dueDate },
+}: InvoiceItemProps) {
   return (
     <TableRow>
       <TableCell className="flex items-center gap-3 font-medium">
@@ -75,9 +71,23 @@ function InvoiceItem({
         {profile?.name}
       </TableCell>
       <TableCell>{user.email}</TableCell>
-      <TableCell>GHS {utils.formatToMoney(totalCoursePayment)}</TableCell>
-      <TableCell>{format(paidAt, 'PP')}</TableCell>
-      <InvoiceStatus status={status} />
+      <TableCell>GHS {utils.formatToMoney(amount)}</TableCell>
+      <TableCell>{format(paidAt ? paidAt : dueDate!, 'PP')}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Badge
+            variant="outline"
+            className="flex gap-1 px-1.5 text-muted-foreground [&_svg]:size-3"
+          >
+            {status === 'paid' ? (
+              <CheckCircle2Icon className="text-green-500 dark:text-green-400" />
+            ) : (
+              <LoaderIcon />
+            )}
+            {status}
+          </Badge>
+        </div>
+      </TableCell>
     </TableRow>
   )
 }
@@ -86,7 +96,7 @@ function SearchFilter() {
   const invoiceStatuses = [
     { id: 'paid', name: 'Paid' },
     { id: 'pending', name: 'Pending' },
-    { id: 'both', name: 'Both' },
+    { id: 'cancelled', name: 'Cancelled' },
   ]
 
   return (
@@ -94,31 +104,9 @@ function SearchFilter() {
       <CustomFormInput
         formElement="combobox"
         items={invoiceStatuses}
-        query="invoiceStatus"
-        name="Invoice Status"
+        query="status"
+        name="Status"
       />
     </div>
-  )
-}
-
-function InvoiceStatus({ status }: { status: CoursePaymentStatus }) {
-  if (status === 'Paid') {
-    return (
-      <TableCell>
-        <div className="flex items-center justify-center gap-1 rounded-sm bg-green-600 py-1 text-center text-white">
-          Paid
-          <Check className="h-4 w-4" />
-        </div>
-      </TableCell>
-    )
-  }
-
-  return (
-    <TableCell>
-      <div className="flex items-center justify-center gap-1 rounded-sm bg-gray-200 py-1 text-center">
-        Pending
-        <Clock className="h-4 w-4" />
-      </div>
-    </TableCell>
   )
 }

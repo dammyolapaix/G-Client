@@ -11,12 +11,9 @@ export type InsertInvoice = typeof invoices.$inferInsert
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number]
 
 export type InvoiceRelationships = {
-  totalInvoice: number
-  status: InvoiceStatus
-  paidAt: string
   profile: Profile
   user: Omit<User, 'password'>
   course: Course
 }
 
-export type InvoiceWithRelationships = InvoiceRelationships
+export type InvoiceWithRelationships = Invoice & InvoiceRelationships
