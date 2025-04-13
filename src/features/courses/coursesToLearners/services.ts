@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, getTableColumns, ilike, isNotNull, isNull } from 'drizzle-orm'
+import { and, count, eq, getTableColumns, ilike } from 'drizzle-orm'
 
 import db from '@/db'
 import { courses, coursesToLearners, profiles, users } from '@/db/schema'
@@ -20,32 +20,8 @@ export default class CourseToLearnerServices {
     return courseToLearner
   }
 
-  update = async (
-    courseToLearnerInfo: Pick<InsertCourseToLearner, 'courseId' | 'learnerId'> &
-      Partial<Omit<InsertCourseToLearner, 'courseId' | 'learnerId'>>
-  ) => {
-    const { courseId, learnerId, ...rest } = courseToLearnerInfo
-
-    const [courseToLearner] = await db
-      .update(coursesToLearners)
-      .set(rest)
-      .where(
-        and(
-          eq(coursesToLearners.learnerId, courseToLearnerInfo.learnerId),
-          eq(coursesToLearners.courseId, courseToLearnerInfo.courseId)
-        )
-      )
-      .returning()
-
-    if (!courseToLearner) throw new Error(INTERNAL_ERROR_MESSAGE)
-
-    return courseToLearner
-  }
-
   retrieve = async (
-    query: Partial<
-      Pick<CourseToLearner, 'courseId' | 'learnerId' | 'paystackReference'>
-    > & {
+    query: Partial<Pick<CourseToLearner, 'courseId' | 'learnerId'>> & {
       paidAtIsNotNull?: true
     }
   ) =>
@@ -56,11 +32,7 @@ export default class CourseToLearnerServices {
           : undefined,
         query.learnerId
           ? eq(coursesToLearners.learnerId, query.learnerId)
-          : undefined,
-        query.paystackReference
-          ? eq(coursesToLearners.paystackReference, query.paystackReference)
-          : undefined,
-        query.paidAtIsNotNull ? isNotNull(coursesToLearners.paidAt) : undefined
+          : undefined
       ),
     })
 
@@ -68,9 +40,10 @@ export default class CourseToLearnerServices {
     query?: Partial<
       Pick<CourseToLearner, 'courseId' | 'learnerId'> & {
         learnerName: string
-      } & { invoiceStatus: 'paid' | 'pending' }
+      }
     >
   ) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...usersTable } = getTableColumns(users)
 
     return await db
@@ -86,11 +59,11 @@ export default class CourseToLearnerServices {
       .innerJoin(profiles, eq(profiles.userId, users.id))
       .where(
         and(
-          query?.invoiceStatus === 'paid'
-            ? isNotNull(coursesToLearners.paidAt)
-            : query?.invoiceStatus === 'pending'
-              ? isNull(coursesToLearners.paidAt)
-              : undefined,
+          // query?.invoiceStatus === 'paid'
+          //   ? isNotNull(coursesToLearners.paidAt)
+          //   : query?.invoiceStatus === 'pending'
+          //     ? isNull(coursesToLearners.paidAt)
+          //     : undefined,
           query?.courseId
             ? eq(coursesToLearners.courseId, query.courseId)
             : undefined,
@@ -102,5 +75,15 @@ export default class CourseToLearnerServices {
             : undefined
         )
       )
+  }
+
+  totalLearners = async () => {
+    const [totalLearners] = await db
+      .select({
+        count: count(),
+      })
+      .from(coursesToLearners)
+
+    return totalLearners.count
   }
 }
