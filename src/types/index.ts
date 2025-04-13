@@ -25,6 +25,11 @@ export type With<Entity extends TrueEntity> = {
   }
 }
 
+export type Pagination = {
+  limit?: number
+  page?: number
+}
+
 export type NoItemFoundProps = {
   title?: string
   description?: string
