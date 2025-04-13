@@ -1,4 +1,4 @@
-export { authProviderEnum, roleEnum } from '@/db/enums'
+export { authProviderEnum, invoiceStatusEnum, roleEnum } from '@/db/enums'
 export {
   default as coursesToLearners,
   coursesToLearnersRelations,
@@ -13,6 +13,10 @@ export {
 } from '@/features/courses/payments/schema'
 export { default as courses, coursesRelations } from '@/features/courses/schema'
 export { default as stacks } from '@/features/courses/stacks/schema'
+export {
+  default as invoices,
+  invoicesRelations,
+} from '@/features/invoices/schema'
 export {
   default as profiles,
   profilesRelations,

@@ -10,3 +10,7 @@ export const UNAUTHORIZE_ERROR_MESSAGE =
 
 export const UNAUTHENTICATED_ERROR_MESSAGE =
   'You need to log in to access this resource. Please sign in with your account to continue.' as const
+
+export const INVOICE_STATUSES = ['paid', 'pending', 'cancelled'] as const
+
+export const PAYMENT_TYPES = ['Partial', 'Full'] as const
