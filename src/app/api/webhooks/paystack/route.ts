@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     if (hash == request.headers.get('x-paystack-signature')) {
       switch (reqBody.event) {
         case 'charge.success':
-          await course.services.enrollLearnerToCourse(reqBody.data)
+          await course.services.purchaseCourse(reqBody.data)
 
           break
 
