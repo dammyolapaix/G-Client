@@ -1,13 +1,11 @@
 import { relations } from 'drizzle-orm'
 import {
-  bigint,
   date,
   integer,
   pgTable,
   primaryKey,
   unique,
   uuid,
-  varchar,
 } from 'drizzle-orm/pg-core'
 
 import { courses, users } from '@/db/schema'
@@ -27,11 +25,9 @@ const coursesToLearners = pgTable(
     learnerId: uuid()
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
-    amount: integer().notNull(),
+    // The price of the course may change, so we use this to track outstanding course payment since this will be the course price as at the time the learner is enrolling to the course
+    coursePrice: integer().notNull(),
     date: date({ mode: 'string' }).defaultNow().notNull(),
-    paidAt: date(),
-    paystackReference: varchar({ length: 320 }).notNull().unique(),
-    paystackTransactionId: bigint({ mode: 'number' }),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.courseId, t.learnerId] }),
