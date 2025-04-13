@@ -69,13 +69,13 @@ type LearnerItemProps = {
 }
 
 function LearnerItem({ learner }: LearnerItemProps) {
-  const { course, profile, user, date } = learner
+  const { course, profile, date } = learner
   return (
     <TableRow>
       <TableCell className="flex items-center gap-3 font-medium">
         <Image
           alt={`photo of ${profile?.name}`}
-          src={profile?.image!}
+          src={profile.image!}
           width={100}
           height={100}
           className="h-10 w-10 rounded-full"

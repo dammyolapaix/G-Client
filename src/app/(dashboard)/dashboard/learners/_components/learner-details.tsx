@@ -10,20 +10,18 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { CourseToLearnerWithRelationships } from '@/features/courses/coursesToLearners/types'
-import utils from '@/lib/utils'
 
 type Props = {
   learner: CourseToLearnerWithRelationships
 }
 
 export default function LearnerDetails({
-  learner: { profile, user, course, amount },
+  learner: { profile, user, course },
 }: Props) {
   const learnerDetails = [
     { name: 'Program', value: course.title },
     { name: 'Contact', value: profile.phone },
     { name: 'Contact', value: profile.location },
-    { name: 'Paid', value: `GHS ${utils.formatToMoney(amount)}` },
     { name: 'Bio', value: profile.bio },
   ]
 
@@ -38,7 +36,7 @@ export default function LearnerDetails({
           <div>
             <Image
               alt={`photo of ${profile?.name}`}
-              src={profile?.image!}
+              src={profile.image!}
               width={100}
               height={100}
               className="h-[10rem] w-[10rem] rounded-full"
