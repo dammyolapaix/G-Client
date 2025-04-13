@@ -7,8 +7,11 @@ import { z } from 'zod'
 
 import auth from '@/lib/auth'
 import { DASHBOARD_COURSES_ROUTE } from '@/lib/routes'
+import utils from '@/lib/utils'
 
 import course from '.'
+import invoice from '../invoices'
+import user from '../users'
 import courseToLearner from './coursesToLearners'
 
 export const createCourseAction = auth.middlewares.validatedActionWithUser(
@@ -57,49 +60,100 @@ export const purchaseCourseAction = auth.middlewares.validatedActionWithUser(
     authUser
   ) => {
     const { id: learnerId, email: learnerEmail } = authUser
-    const { courseId } = state
+    const { courseId, amount } = state
 
-    // if (!auth.utils.authUserProfileIsCompleted(authUser))
-    //   return {
-    //     error: 'Please complete your profile before purchasing a course',
-    //   }
+    const form = {
+      ...state,
+      amount: state.amount ? state.amount / 100 : undefined,
+    }
 
-    const courseExist = await course.services.retrieve({ id: state.courseId })
+    /**
+     * Validations
+     *
+     * 1. Does course exist
+     * 2. Is learner enrolled in a course
+     * 3. Has learner paid fully
+     * 3.
+     */
 
-    if (!courseExist)
+    const learnerProfile = await user.services.getUserProfile(authUser.id)
+
+    const authUserWithProfile = {
+      ...authUser,
+      profile: learnerProfile ? learnerProfile : null,
+    }
+
+    if (!auth.utils.authUserProfileIsCompleted(authUserWithProfile))
       return {
-        error: 'Course does not exist exist',
+        form,
+        error: 'Please complete your profile before purchasing a course',
       }
 
-    const learnerHasAttemptedCoursePurchase =
-      await courseToLearner.services.retrieve({ courseId, learnerId })
+    const [courseExist, enrolledLearner] = await Promise.all([
+      course.services.retrieve({ id: state.courseId }),
+      courseToLearner.services.retrieve({
+        courseId,
+        learnerId,
+      }),
+    ])
 
-    // Check if learner has paid for course (enrolled)
-    const learnerIsEnrolledToCourse =
-      learnerHasAttemptedCoursePurchase &&
-      learnerHasAttemptedCoursePurchase.paidAt
-        ? true
-        : false
+    if (!courseExist) return { error: 'Course not found' }
 
-    if (learnerIsEnrolledToCourse)
-      return {
-        error:
-          "You've already enrolled to this course, please visit your dashboard to start learning!",
-      }
+    const coursePrice = courseExist.price
+
+    if (!enrolledLearner && amount) {
+      const unEnrolledLearnerIsPayingHigher = amount > coursePrice
+
+      if (unEnrolledLearnerIsPayingHigher)
+        return {
+          form,
+          error: `Please pay an amount of GHC ${utils.formatToMoney(coursePrice)} or less`,
+        }
+    }
+
+    if (enrolledLearner) {
+      // Check if learner has fully paid, then throw an error if "YES" to prevent multiple enrollment
+      const { totalPaidInvoiceAmount } = await invoice.services.totalInvoice({
+        courseId,
+        learnerId,
+      })
+
+      if (totalPaidInvoiceAmount === enrolledLearner.coursePrice)
+        return {
+          form,
+          error:
+            "You've already enrolled and fully paid for this course, please visit your dashboard to start learning!",
+        }
+
+      const isPayingHigher =
+        totalPaidInvoiceAmount + amount! > enrolledLearner.coursePrice
+
+      const amountOwed = enrolledLearner.coursePrice - totalPaidInvoiceAmount
+
+      if (!isPayingHigher)
+        return {
+          form,
+          error: `Please pay an amount of GHC ${utils.formatToMoney(amountOwed)} or less`,
+        }
+    }
+
+    const learnerHasAttemptedCoursePurchase = await invoice.services.retrieve({
+      courseId,
+      learnerId,
+      status: 'pending',
+    })
 
     // Helps to indicate if the courseToLearner is to be created or updated
-    const isCompletingCoursePurchase = learnerHasAttemptedCoursePurchase
+    const hasAttemptedCoursePurchase = learnerHasAttemptedCoursePurchase
       ? true
       : false
 
-    const { price: amount } = courseExist
-
-    const purchaseCourse = await course.services.purchaseCourse({
-      amount,
+    const purchaseCourse = await course.services.initializeCoursePurchase({
+      amount: amount ?? coursePrice,
       courseId,
       learnerId,
       learnerEmail,
-      isCompletingCoursePurchase,
+      hasAttemptedCoursePurchase,
     })
 
     redirect(purchaseCourse.transactionAuthorizationUrl)

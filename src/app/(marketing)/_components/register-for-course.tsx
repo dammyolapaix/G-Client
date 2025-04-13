@@ -1,6 +1,21 @@
 import Image from 'next/image'
 
-export default function RegisterForCourse() {
+import course from '@/features/courses'
+import { UserWithRelationships } from '@/features/users/types'
+import auth from '@/lib/auth'
+import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
+
+import { RegisterForm } from '../(auth)/_components/register-form'
+import RegisterCourseForm from './register-course-form'
+
+export default async function RegisterForCourse() {
+  const [authUser, courses] = await Promise.all([
+    auth.utils.getAuthUser({ with: { profile: true } }),
+    course.services.list(),
+  ])
+
+  if (!courses) throw new Error(INTERNAL_ERROR_MESSAGE)
+
   const steps = [
     {
       title: 'Sign Up and Choose Your Course',
@@ -22,7 +37,7 @@ export default function RegisterForCourse() {
   return (
     <div className="mx-auto my-20 w-10/12">
       <div className="grid gap-10 lg:grid-cols-12">
-        <div className="flex gap-3 lg:col-span-4">
+        <div className="flex gap-3 lg:col-span-5">
           <div className="">
             <Image
               src={'/step.png'}
@@ -41,11 +56,15 @@ export default function RegisterForCourse() {
             ))}
           </div>
         </div>
-        <div className="lg:col-span-8">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Repudiandae,
-          voluptatum quibusdam. Voluptatem suscipit maiores debitis veniam?
-          Architecto, eius! Delectus fugit voluptate iusto odio enim. Assumenda
-          dolorem reiciendis ut velit doloremque!
+        <div className="px-20 lg:col-span-7">
+          {authUser ? (
+            <RegisterCourseForm
+              authUser={authUser as UserWithRelationships}
+              courses={courses}
+            />
+          ) : (
+            <RegisterForm />
+          )}
         </div>
       </div>
     </div>

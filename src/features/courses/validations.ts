@@ -2,6 +2,7 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 import { courses } from '@/db/schema'
+import { PAYMENT_TYPES } from '@/lib/constants'
 import utils from '@/lib/utils'
 
 export default class CourseValidations {
@@ -50,11 +51,31 @@ export default class CourseValidations {
     }
   })
 
-  purchase = z.object({
-    courseId: z
-      .string({
-        required_error: 'The course is required',
-      })
-      .uuid({ message: 'The course is required' }),
-  })
+  purchase = z
+    .object({
+      paymentType: z.enum(PAYMENT_TYPES, {
+        message: 'The payment type is required',
+      }),
+      courseId: z
+        .string({
+          required_error: 'The course is required',
+        })
+        .uuid({ message: 'The course is required' }),
+      amount: z.coerce
+        .number({
+          message: 'The amount is required and it must be a number',
+        })
+        .min(100, 'The minimum amount you can pay for a course is GHS 100')
+        .transform((val) => val * 100)
+        .optional(),
+    })
+    .superRefine(({ paymentType, amount }, { addIssue }) => {
+      if (paymentType === 'Partial' && !amount) {
+        addIssue({
+          code: 'custom',
+          path: ['amount'],
+          message: 'The amount is required when payment type is partial',
+        })
+      }
+    })
 }

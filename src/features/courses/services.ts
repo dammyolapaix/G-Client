@@ -3,13 +3,13 @@ import 'server-only'
 import { and, eq, ilike } from 'drizzle-orm'
 
 import db from '@/db'
-import { courses } from '@/db/schema'
+import { courses, coursesToLearners, invoices } from '@/db/schema'
 import { env } from '@/env/server'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
 import paystack from '@/lib/payments/paystack'
 import { TransactionSuccessResponse } from '@/lib/payments/types'
 
-import courseToLearner from './coursesToLearners'
+import invoice from '../invoices'
 import { InsertCourse, ListCourse, RetrieveCourse } from './types'
 
 export default class CourseServices {
@@ -51,18 +51,18 @@ export default class CourseServices {
           : undefined,
     })
 
-  purchaseCourse = async ({
+  initializeCoursePurchase = async ({
     courseId,
     learnerId,
     amount,
     learnerEmail,
-    isCompletingCoursePurchase,
+    hasAttemptedCoursePurchase,
   }: {
     learnerId: string
     courseId: string
     amount: number
     learnerEmail: string
-    isCompletingCoursePurchase: boolean | undefined
+    hasAttemptedCoursePurchase: boolean
   }) => {
     /**
      * @todo
@@ -82,25 +82,36 @@ export default class CourseServices {
 
     if (!transaction) throw new Error(INTERNAL_ERROR_MESSAGE)
 
-    if (!isCompletingCoursePurchase)
-      await courseToLearner.services.create({
-        learnerId,
-        courseId,
-        amount,
-        paystackReference: transaction.data.reference,
-      })
-
-    if (isCompletingCoursePurchase)
-      await courseToLearner.services.update({
-        learnerId,
-        courseId,
-        paystackReference: transaction.data.reference,
-      })
+    await db.transaction(async (tx) => {
+      if (hasAttemptedCoursePurchase) {
+        await tx
+          .update(invoices)
+          .set({
+            amount,
+            paystackReference: transaction.data.reference,
+            paymentLink: transaction.data.authorization_url,
+          })
+          .where(
+            and(
+              eq(invoices.courseId, courseId),
+              eq(invoices.learnerId, learnerId)
+            )
+          )
+      } else {
+        await tx.insert(invoices).values({
+          amount,
+          courseId,
+          learnerId,
+          paystackReference: transaction.data.reference,
+          paymentLink: transaction.data.authorization_url,
+        })
+      }
+    })
 
     return { transactionAuthorizationUrl: transaction.data.authorization_url }
   }
 
-  enrollLearnerToCourse = async ({
+  purchaseCourse = async ({
     amount,
     status,
     paid_at: paidAt,
@@ -108,7 +119,7 @@ export default class CourseServices {
     id: paystackTransactionId,
   }: TransactionSuccessResponse) => {
     // This may never occur, just an extra check
-    const transactionExist = await courseToLearner.services.retrieve({
+    const transactionExist = await invoice.services.retrieve({
       paystackReference,
     })
 
@@ -126,12 +137,41 @@ export default class CourseServices {
 
     const { courseId, learnerId } = transactionExist
 
-    // Enroll Learner
-    await courseToLearner.services.update({
-      courseId,
-      learnerId,
-      paidAt,
-      paystackTransactionId,
+    await db.transaction(async (tx) => {
+      // Complete course payment/purchase
+      const updatedInvoice = await tx
+        .update(invoices)
+        .set({ paidAt, paystackTransactionId, status: 'paid' })
+        .where(
+          and(
+            eq(invoices.learnerId, learnerId),
+            eq(invoices.courseId, courseId)
+          )
+        )
+        .returning({ id: invoices.id })
+
+      if (!updatedInvoice) {
+        tx.rollback()
+        throw new Error(INTERNAL_ERROR_MESSAGE)
+      }
+
+      // Enroll Student
+      await tx
+        .insert(coursesToLearners)
+        .values({
+          courseId,
+          learnerId,
+          coursePrice: transactionExist.course.price,
+        })
+        .onConflictDoNothing({
+          target: [coursesToLearners.learnerId, coursesToLearners.courseId],
+        })
     })
   }
 }
+
+/**
+ * 1. Compared register users and users who enrolled in a course
+ * 2. Export report as pdf or excel
+ * 3. View paid or unpaid invoices
+ */
