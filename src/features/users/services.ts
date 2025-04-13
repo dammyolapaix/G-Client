@@ -108,4 +108,9 @@ export default class UserServices {
         if (!profile) throw new Error(INTERNAL_ERROR_MESSAGE)
       }
     })
+
+  getUserProfile = async (userId: string) =>
+    await db.query.profiles.findFirst({
+      where: eq(profiles.userId, userId),
+    })
 }
