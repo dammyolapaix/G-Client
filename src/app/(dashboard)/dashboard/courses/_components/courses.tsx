@@ -1,16 +1,11 @@
 import Image from 'next/image'
-import Link from 'next/link'
 
 import CustomFormInput from '@/components/custom-form-inputs'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import ViewItems from '@/components/view-items'
 import course from '@/features/courses'
 import { CourseWithRelationships } from '@/features/courses/types'
-import {
-  DASHBOARD_COURSES_CREATE_ROUTE,
-  DASHBOARD_COURSES_ROUTE,
-} from '@/lib/routes'
+import { DASHBOARD_COURSES_CREATE_ROUTE } from '@/lib/routes'
 import utils from '@/lib/utils'
 
 type Props = {
@@ -58,7 +53,7 @@ type CourseItemProps = {
 }
 
 function CourseItem({
-  course: { id, image, title, price, duration, instructor },
+  course: { image, title, price, duration, instructor },
 }: CourseItemProps) {
   return (
     <Card>
@@ -85,10 +80,6 @@ function CourseItem({
           <div>Instructor</div>
           <div className="font-semibold">{instructor.profile?.name}</div>
         </div>
-
-        <Button asChild>
-          <Link href={`${DASHBOARD_COURSES_ROUTE}/${id}`}>View more</Link>
-        </Button>
       </CardContent>
     </Card>
   )
