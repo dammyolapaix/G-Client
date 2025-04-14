@@ -4,7 +4,6 @@ import * as React from 'react'
 
 import {
   DollarSign,
-  File,
   GalleryVerticalEnd,
   GraduationCap,
   Home,
@@ -25,7 +24,6 @@ import {
   DASHBOARD_COURSES_ROUTE,
   DASHBOARD_INVOICES_ROUTE,
   DASHBOARD_LEARNERS_ROUTE,
-  DASHBOARD_REPORTS_ROUTE,
   DASHBOARD_ROUTE,
 } from '@/lib/routes'
 
@@ -63,11 +61,11 @@ const data = {
       url: DASHBOARD_COURSES_ROUTE,
       icon: GraduationCap,
     },
-    {
-      title: 'Reports',
-      url: DASHBOARD_REPORTS_ROUTE,
-      icon: File,
-    },
+    // {
+    //   title: 'Reports',
+    //   url: DASHBOARD_REPORTS_ROUTE,
+    //   icon: File,
+    // },
   ],
 }
 
