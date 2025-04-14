@@ -16,9 +16,9 @@ export default async function VerifyEmailPage() {
 
   return (
     <Suspense>
-      <AuthLayout
-        component={<VerifyEmailForm authUserEmail={authUser.email} />}
-      />
+      <AuthLayout>
+        <VerifyEmailForm authUserEmail={authUser.email} />
+      </AuthLayout>
     </Suspense>
   )
 }

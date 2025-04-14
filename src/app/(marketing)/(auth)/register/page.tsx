@@ -6,7 +6,9 @@ import { RegisterForm } from '../_components/register-form'
 export default function RegisterPage() {
   return (
     <Suspense>
-      <AuthLayout component={<RegisterForm />} />
+      <AuthLayout>
+        <RegisterForm />
+      </AuthLayout>
     </Suspense>
   )
 }

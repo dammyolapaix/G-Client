@@ -18,5 +18,9 @@ export default async function CompleteProfilePage() {
 
   if (auth.utils.authUserProfileIsCompleted(authUser)) redirect(DASHBOARD_ROUTE)
 
-  return <AuthLayout component={<CompleteProfileForm />} />
+  return (
+    <AuthLayout>
+      <CompleteProfileForm />
+    </AuthLayout>
+  )
 }
