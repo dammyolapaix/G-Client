@@ -32,7 +32,6 @@ export const env = createEnv({
       .min(8, { message: 'Password must be at least 8 characters' }),
     CLOUDINARY_API_SECRET: z.string(),
     PAYSTACK_SECRET_KEY: z.string(),
-    EMAIL_FROM_NAME: z.string(),
     EMAIL_FROM_EMAIL: z.string(),
     SMTP_HOST: z.string(),
     SMTP_PORT: z.coerce.number(),
