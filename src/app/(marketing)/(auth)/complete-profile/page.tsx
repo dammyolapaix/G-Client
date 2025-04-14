@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { UserWithRelationships } from '@/features/users/types'
 import auth from '@/lib/auth'
-import { DASHBOARD_ROUTE, LOGIN_ROUTE, VERIFY_EMAIL_ROUTE } from '@/lib/routes'
+import { HOME_ROUTE, LOGIN_ROUTE, VERIFY_EMAIL_ROUTE } from '@/lib/routes'
 
 import AuthLayout from '../_components/auth-layout'
 import { CompleteProfileForm } from '../_components/complete-profile-form'
@@ -16,7 +16,7 @@ export default async function CompleteProfilePage() {
 
   if (!authUser.emailVerified) redirect(VERIFY_EMAIL_ROUTE)
 
-  if (auth.utils.authUserProfileIsCompleted(authUser)) redirect(DASHBOARD_ROUTE)
+  if (auth.utils.authUserProfileIsCompleted(authUser)) redirect(HOME_ROUTE)
 
   return (
     <AuthLayout>
