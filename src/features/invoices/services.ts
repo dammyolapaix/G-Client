@@ -52,6 +52,13 @@ export default class InvoiceServices {
       )
       .groupBy(invoices.status)
 
+    if (!totalInvoice)
+      return {
+        totalPaidInvoiceAmount: 0,
+        totalPendingInvoiceAmount: 0,
+        totalCancelledInvoiceAmount: 0,
+      }
+
     return totalInvoice
   }
 
