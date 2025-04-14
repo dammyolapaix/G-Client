@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 import { UserWithRelationships } from '@/features/users/types'
 import auth from '@/lib/auth'
@@ -19,8 +20,10 @@ export default async function CompleteProfilePage() {
   if (auth.utils.authUserProfileIsCompleted(authUser)) redirect(HOME_ROUTE)
 
   return (
-    <AuthLayout>
-      <CompleteProfileForm />
-    </AuthLayout>
+    <Suspense>
+      <AuthLayout>
+        <CompleteProfileForm />
+      </AuthLayout>
+    </Suspense>
   )
 }

@@ -20,7 +20,11 @@ export default async function VerifyEmailPage(props: Props) {
 
   if (!authUser) redirect(LOGIN_ROUTE)
 
-  if (!auth.utils.authUserProfileIsCompleted(authUser as UserWithRelationships))
+  const profileIsCompleted = auth.utils.authUserProfileIsCompleted(
+    authUser as UserWithRelationships
+  )
+
+  if (authUser.emailVerified && !profileIsCompleted)
     redirect(COMPLETE_PROFILE_ROUTE)
 
   if (authUser.emailVerified) redirect(HOME_ROUTE)
