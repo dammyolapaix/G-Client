@@ -2,6 +2,7 @@ import 'server-only'
 
 import { and, desc, eq, getTableColumns, ilike, sql } from 'drizzle-orm'
 
+import InvoiceEmail from '@/components/email/invoice'
 import db from '@/db'
 import {
   courses,
@@ -10,10 +11,15 @@ import {
   profiles,
   users,
 } from '@/db/schema'
+import { env } from '@/env/server'
 import { INTERNAL_ERROR_MESSAGE } from '@/lib/constants'
+import email from '@/lib/emails'
 import withPagination from '@/lib/pagination'
+import paystack from '@/lib/payments/paystack'
 import { Pagination } from '@/types'
 
+import { Course } from '../courses/types'
+import { UserWithRelationships } from '../users/types'
 import { InsertInvoice, Invoice, InvoiceStatus } from './types'
 
 export default class InvoiceServices {
@@ -139,10 +145,49 @@ export default class InvoiceServices {
     return await withPagination(dynamicQuery, query?.page, query?.limit)
   }
 
-  create = async (data: InsertInvoice) => {
-    const [invoice] = await db.insert(invoices).values(data).returning()
+  create = async (data: {
+    courseId: string
+    learnerId: string
+    amount: number
+    dueDate: string
+    course: Course
+    learner: Omit<UserWithRelationships, 'password'>
+  }) => {
+    const { course, learner, ...invoiceData } = data
+
+    const transaction = await paystack.initializeTransaction({
+      amount: data.amount.toString(),
+      currency: 'GHS',
+      email: learner.email,
+      callback_url: `${env.BASE_URL}/confirm-payment?courseId=${data.courseId}`,
+    })
+
+    if (!transaction) throw new Error(INTERNAL_ERROR_MESSAGE)
+
+    const [invoice] = await db
+      .insert(invoices)
+      .values({
+        ...invoiceData,
+        status: 'pending',
+        paystackReference: transaction.data.reference,
+        paymentLink: transaction.data.authorization_url,
+      })
+      .returning()
 
     if (!invoice) throw new Error(INTERNAL_ERROR_MESSAGE)
+
+    // Send email to learner
+    await email.send({
+      to: [learner.email],
+      subject: 'Course Invoice',
+      emailTemplate: InvoiceEmail({
+        learnerName: learner.profile?.name || 'Student',
+        courseName: course.title,
+        amount: data.amount / 100,
+        dueDate: data.dueDate,
+        paymentLink: transaction.data.authorization_url,
+      }),
+    })
 
     return invoice
   }
