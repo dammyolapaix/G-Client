@@ -47,7 +47,7 @@ export default class UserServices {
       emailTemplate: VerifyEmail({ verificationCode: token }),
     })
 
-    return { id: userId! }
+    return { id: userId!, token }
   }
 
   /**
