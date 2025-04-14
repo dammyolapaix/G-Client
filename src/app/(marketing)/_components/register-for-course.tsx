@@ -36,9 +36,9 @@ export default async function RegisterForCourse() {
 
   return (
     <div className="mx-auto my-20 w-10/12">
-      <div className="grid gap-10 lg:grid-cols-12">
+      <div className="grid gap-20 lg:grid-cols-12">
         <div className="flex gap-3 lg:col-span-5">
-          <div className="">
+          <div className="hidden lg:block">
             <Image
               src={'/step.png'}
               alt=""
@@ -56,7 +56,7 @@ export default async function RegisterForCourse() {
             ))}
           </div>
         </div>
-        <div className="px-20 lg:col-span-7">
+        <div className="lg:col-span-7">
           {authUser ? (
             <RegisterCourseForm
               authUser={authUser as UserWithRelationships}

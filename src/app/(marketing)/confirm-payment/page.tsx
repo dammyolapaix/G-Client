@@ -21,7 +21,6 @@ export default async function ConfirmPaymentPage(props: {
   const authUserCourseEnrolled = await courseToLearner.services.retrieve({
     courseId: searchParams.courseId,
     learnerId: authUser.id,
-    paidAtIsNotNull: true,
   })
 
   return (

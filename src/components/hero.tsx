@@ -29,7 +29,7 @@ export default function Hero() {
             succeed.
           </p>
           <div className="inline-block">
-            <Button variant="outline" asChild>
+            <Button asChild size="lg" className="border border-white p-3">
               <Link href={LOGIN_ROUTE}>Get Started</Link>
             </Button>
           </div>

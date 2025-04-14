@@ -26,7 +26,7 @@ export default function OurSolutions() {
   ]
 
   return (
-    <section className="my-20">
+    <section id="courses" className="mx-auto my-20 w-10/12">
       <div className="mb-10 text-center">
         <h2 className="text-2xl font-bold md:text-4xl">Our solutions</h2>
         <p>
@@ -35,7 +35,7 @@ export default function OurSolutions() {
         </p>
       </div>
 
-      <div className="mx-auto grid w-10/12 grid-cols-1 gap-10 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
         {solutions.map((solution) => (
           <SolutionItem key={solution.name} solution={solution} />
         ))}
