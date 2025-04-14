@@ -9,6 +9,7 @@ import auth from '@/lib/auth'
 import email from '@/lib/emails'
 import {
   COMPLETE_PROFILE_ROUTE,
+  DASHBOARD_ROUTE,
   HOME_ROUTE,
   VERIFY_EMAIL_ROUTE,
 } from '@/lib/routes'
@@ -47,12 +48,14 @@ export const loginAction = auth.middlewares.validatedAction(
       }
 
     // Set session
-    if (foundUser)
-      await auth.utils.setSession({
-        id: foundUser.id,
-      })
+    await auth.utils.setSession({
+      id: foundUser.id,
+    })
 
-    redirect(HOME_ROUTE)
+    const redirectRoute =
+      foundUser.role === 'admin' ? DASHBOARD_ROUTE : HOME_ROUTE
+
+    redirect(redirectRoute)
   }
 )
 

@@ -22,21 +22,25 @@ class Email {
   })
 
   send = async ({ emailTemplate, subject, to }: SendEmail) => {
-    const html = await render(emailTemplate)
+    try {
+      const html = await render(emailTemplate)
 
-    const options = {
-      from: `${env.EMAIL_FROM_NAME} <${env.EMAIL_FROM_EMAIL}>`,
-      to,
-      subject,
-      html,
-    }
+      const options = {
+        from: env.EMAIL_FROM_EMAIL,
+        to,
+        subject,
+        html,
+      }
 
-    if (env.NODE_ENV === 'production') {
-      sendgrid.setApiKey(env.SENDGRID_API_KEY)
+      if (env.NODE_ENV === 'production') {
+        sendgrid.setApiKey(env.SENDGRID_API_KEY)
 
-      await sendgrid.send(options)
-    } else {
-      await this.transporter.sendMail(options)
+        await sendgrid.send(options)
+      } else {
+        await this.transporter.sendMail(options)
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 }

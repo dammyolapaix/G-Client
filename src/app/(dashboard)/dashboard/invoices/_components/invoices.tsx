@@ -12,6 +12,7 @@ import {
   InvoiceStatus,
   InvoiceWithRelationships,
 } from '@/features/invoices/types'
+import { DASHBOARD_INVOICES_CREATE_ROUTE } from '@/lib/routes'
 import utils from '@/lib/utils'
 
 type Props = {
@@ -25,7 +26,11 @@ export default async function Invoices({ searchParams: { status } }: Props) {
     <ViewItems
       title="Invoices"
       searchFilter={<SearchFilter />}
-      button={{ ctaType: 'link', cta: 'Add Invoice', href: '#' }}
+      button={{
+        ctaType: 'link',
+        cta: 'Add Invoice',
+        href: DASHBOARD_INVOICES_CREATE_ROUTE,
+      }}
       items={{
         length: invoices.length,
         type: 'table',
@@ -43,7 +48,7 @@ export default async function Invoices({ searchParams: { status } }: Props) {
       noItemFound={{
         ctaType: 'link',
         cta: 'Add Invoice',
-        href: '#',
+        href: DASHBOARD_INVOICES_CREATE_ROUTE,
         title: 'No invoice',
         description: 'You can add a new invoice by clicking on the link below',
       }}
