@@ -12,7 +12,7 @@ export default function DashboardPage() {
       <Suspense fallback={<Skeleton />}>
         <Stats />
       </Suspense>
-      <div className="my-10 grid grid-cols-2 gap-10">
+      <div className="my-10 grid grid-cols-1 gap-10 md:grid-cols-2">
         <Chart />
         <Suspense fallback={<Skeleton />}>
           <LatestInvoices />

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { and, eq, getTableColumns, ilike, sql } from 'drizzle-orm'
+import { and, desc, eq, getTableColumns, ilike, sql } from 'drizzle-orm'
 
 import db from '@/db'
 import {
@@ -51,6 +51,13 @@ export default class InvoiceServices {
         )
       )
       .groupBy(invoices.status)
+
+    if (!totalInvoice)
+      return {
+        totalPaidInvoiceAmount: 0,
+        totalPendingInvoiceAmount: 0,
+        totalCancelledInvoiceAmount: 0,
+      }
 
     return totalInvoice
   }
@@ -125,6 +132,7 @@ export default class InvoiceServices {
           query?.status ? eq(invoices.status, query.status) : undefined
         )
       )
+      .orderBy(desc(invoices.createdAt))
 
     const dynamicQuery = queryResult.$dynamic()
 
