@@ -7,8 +7,15 @@ import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@/lib/routes'
 import AuthLayout from '../_components/auth-layout'
 import { VerifyEmailForm } from '../_components/verify-email-form'
 
-export default async function VerifyEmailPage() {
-  const authUser = await auth.utils.getAuthUser()
+type Props = {
+  searchParams: Promise<{ token?: string }>
+}
+
+export default async function VerifyEmailPage(props: Props) {
+  const [searchParams, authUser] = await Promise.all([
+    props.searchParams,
+    auth.utils.getAuthUser({ with: { profile: true } }),
+  ])
 
   if (!authUser) redirect(LOGIN_ROUTE)
 
@@ -17,7 +24,10 @@ export default async function VerifyEmailPage() {
   return (
     <Suspense>
       <AuthLayout>
-        <VerifyEmailForm authUserEmail={authUser.email} />
+        <VerifyEmailForm
+          token={searchParams.token}
+          authUserEmail={authUser.email}
+        />
       </AuthLayout>
     </Suspense>
   )

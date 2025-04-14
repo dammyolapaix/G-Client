@@ -86,7 +86,7 @@ export const registerAction = auth.middlewares.validatedAction(
     // Set session
     await auth.utils.setSession({ id: createdUser.id })
 
-    redirect(VERIFY_EMAIL_ROUTE)
+    redirect(`${VERIFY_EMAIL_ROUTE}?token=${createdUser.token}`)
   }
 )
 
@@ -165,9 +165,10 @@ export const resendTokenAction = auth.middlewares.validatedActionWithUser(
       emailTemplate: VerifyEmail({ verificationCode: token }),
     })
 
-    return {
-      success: `We've sent an OTP code to your email "${authUser.email}", please check your inbox"`,
-    }
+    // return {
+    //   success: `We've sent an OTP code to your email "${authUser.email}", please check your inbox. Your OTP code is ${token}`,
+    // }
+    redirect(`${VERIFY_EMAIL_ROUTE}?token=${token}`)
   }
 )
 

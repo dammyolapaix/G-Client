@@ -12,9 +12,10 @@ import {
 
 type Props = {
   authUserEmail: string
+  token?: string
 }
 
-export function VerifyEmailForm({ authUserEmail }: Props) {
+export function VerifyEmailForm({ authUserEmail, token }: Props) {
   const [VerifyEmailState, VerifyEmailFormAction] = useActionState(
     verifyEmailAction,
     {}
@@ -43,6 +44,13 @@ export function VerifyEmailForm({ authUserEmail }: Props) {
         <SuccessErrorMessage
           messageType="success"
           message={resendTokenState.success}
+        />
+      )}
+
+      {token && (
+        <SuccessErrorMessage
+          messageType="success"
+          message={`We've sent an OTP code to your email "${authUserEmail}", please check your inbox. Your OTP code is "${token}"`}
         />
       )}
 
