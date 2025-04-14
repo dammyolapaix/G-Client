@@ -38,6 +38,7 @@ export const env = createEnv({
     SMTP_PORT: z.coerce.number(),
     SMTP_USER: z.string(),
     SMTP_PASSWORD: z.string(),
+    SENDGRID_API_KEY: z.string(),
     DB_MIGRATING: stringBoolean,
     DB_SEEDING: stringBoolean,
   },
