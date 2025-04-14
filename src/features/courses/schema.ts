@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm'
 import { integer, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core'
 
 import { timestamps } from '@/db/helper'
-import { coursesToStacks, users } from '@/db/schema'
+import { users } from '@/db/schema'
 
 const courses = pgTable('courses', {
   id: uuid().primaryKey().defaultRandom().notNull(),
@@ -18,8 +18,7 @@ const courses = pgTable('courses', {
   ...timestamps,
 })
 
-export const coursesRelations = relations(courses, ({ one, many }) => ({
-  stacks: many(coursesToStacks),
+export const coursesRelations = relations(courses, ({ one }) => ({
   instructor: one(users, {
     fields: [courses.instructorId],
     references: [users.id],

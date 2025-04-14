@@ -3,16 +3,7 @@ export {
   default as coursesToLearners,
   coursesToLearnersRelations,
 } from '@/features/courses/coursesToLearners/schema'
-export {
-  default as coursesToStacks,
-  coursesToStacksRelations,
-} from '@/features/courses/coursesToStacks/schema'
-export {
-  default as coursePayments,
-  coursePaymentsRelations,
-} from '@/features/courses/payments/schema'
 export { default as courses, coursesRelations } from '@/features/courses/schema'
-export { default as stacks } from '@/features/courses/stacks/schema'
 export {
   default as invoices,
   invoicesRelations,
