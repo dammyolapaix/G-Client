@@ -9,7 +9,7 @@ import auth from '@/lib/auth'
 import email from '@/lib/emails'
 import {
   COMPLETE_PROFILE_ROUTE,
-  DASHBOARD_ROUTE,
+  HOME_ROUTE,
   VERIFY_EMAIL_ROUTE,
 } from '@/lib/routes'
 
@@ -52,7 +52,7 @@ export const loginAction = auth.middlewares.validatedAction(
         id: foundUser.id,
       })
 
-    redirect(DASHBOARD_ROUTE)
+    redirect(HOME_ROUTE)
   }
 )
 
@@ -183,6 +183,6 @@ export const completeProfileAction = auth.middlewares.validatedActionWithUser(
       profile: { ...state, disabled: state.disabled as boolean },
     })
 
-    redirect(DASHBOARD_ROUTE)
+    redirect(HOME_ROUTE)
   }
 )

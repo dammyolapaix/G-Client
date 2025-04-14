@@ -1,6 +1,6 @@
-import { cookies } from 'next/headers'
-
 import 'server-only'
+
+import { cookies } from 'next/headers'
 
 import { compare, hash } from 'bcryptjs'
 import crypto from 'crypto'
@@ -46,15 +46,22 @@ export default class AuthUtils {
       .sign(this.key)
 
   private verifyToken = async (input: string) => {
-    const data = await jwtVerify(input, this.key, {
-      algorithms: ['HS256'],
-    })
+    try {
+      const data = await jwtVerify(input, this.key, {
+        algorithms: ['HS256'],
+      })
 
-    const sessionUser = data.payload as SessionUser
+      const sessionUser = data.payload as SessionUser
 
-    if (new Date(sessionUser.expires) < new Date()) return null
+      if (new Date(sessionUser.expires) < new Date()) {
+        return null
+      }
 
-    return sessionUser
+      return sessionUser
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return null
+    }
   }
 
   private getSession = async () => {
@@ -147,6 +154,7 @@ export default class AuthUtils {
 
     if (authUser.profile === null) return false
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { deletedAt, ...profile } = authUser.profile
 
     return Object.values(profile).every((value) => value !== null)

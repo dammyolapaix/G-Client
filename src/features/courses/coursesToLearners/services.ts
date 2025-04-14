@@ -21,9 +21,7 @@ export default class CourseToLearnerServices {
   }
 
   retrieve = async (
-    query: Partial<Pick<CourseToLearner, 'courseId' | 'learnerId'>> & {
-      paidAtIsNotNull?: true
-    }
+    query: Partial<Pick<CourseToLearner, 'courseId' | 'learnerId'>>
   ) =>
     await db.query.coursesToLearners.findFirst({
       where: and(
